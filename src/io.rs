@@ -151,7 +151,7 @@ pub fn is_whitespace(b: u8) -> bool {
 
 /// Split a byte slice into trimmed tokens (by whitespace).
 /// Returns a slice of (start, len) tuples into the original buffer.
-pub fn tokenize<'a>(line: &'a [u8], tokens: &mut [(usize, usize); 16]) -> usize {
+pub fn tokenize(line: &[u8], tokens: &mut [(usize, usize); 16]) -> usize {
     let mut count = 0;
     let mut i = 0;
     let len = line.len();

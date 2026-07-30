@@ -1,17 +1,26 @@
-use super::{Pipeline, Segment, MAX_ARGS_PER, MAX_SEGMENTS};
+use super::{MAX_ARGS_PER, MAX_SEGMENTS, Pipeline, Segment};
 use crate::io;
 
-pub unsafe fn collect_seg_args(line: &[u8], seg: &Segment) -> usize {
-    static mut G_ARGS_BUF: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
-    for i in 0..seg.n_args {
+pub unsafe fn seg_to_args<'b>(
+    line: &[u8],
+    seg: &Segment,
+    buf: &'b mut [[u8; 64]; MAX_ARGS_PER],
+    args: &'b mut [&'b [u8]; MAX_ARGS_PER],
+) -> &'b [&'b [u8]] {
+    let n_args = seg.n_args;
+    for i in 0..n_args {
         let (off, len) = seg.args[i];
         let n = len.min(63);
         for j in 0..n {
-            G_ARGS_BUF[i][j] = line[off + j];
+            buf[i][j] = line[off + j];
         }
-        G_ARGS_BUF[i][n] = 0;
+        buf[i][n] = 0;
     }
-    seg.n_args
+    for i in 0..n_args {
+        let len = seg.args[i].1.min(63);
+        args[i] = &buf[i][..len];
+    }
+    &args[..n_args]
 }
 
 pub fn parse(line: &[u8]) -> Pipeline {

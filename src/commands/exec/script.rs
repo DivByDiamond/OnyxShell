@@ -25,11 +25,10 @@ pub fn do_script(input: &[u8]) {
         }
         SCRIPT_DEPTH += 1;
     }
-    let result = do_script_inner(input);
+    do_script_inner(input);
     unsafe {
         SCRIPT_DEPTH -= 1;
     }
-    result
 }
 
 fn do_script_inner(input: &[u8]) {

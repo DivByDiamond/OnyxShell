@@ -6,16 +6,12 @@ pub mod history;
 pub mod service;
 
 pub use env::{
-    build_envp, env_get, env_init, env_list, env_set, env_unset, expand_tilde, expand_vars,
-    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX,
+    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX, build_envp, env_get, env_init, env_list, env_set, env_unset,
+    expand_tilde, expand_vars,
 };
-pub use history::{
-    history_expand, history_get, history_last, history_push, nav_down, nav_reset, nav_up,
-    HISTORY_LINE_MAX, HISTORY_SIZE,
-};
-pub use service::glob::{glob_expand, glob_match, has_glob};
+pub use history::{history_expand, history_push, nav_down, nav_reset, nav_up};
+pub use service::glob::glob_expand;
 pub use service::jobs::{
-    job_add, job_count, job_find_by_id, job_get_by_index, job_list, job_reap, job_remove_by_id,
-    job_set_running, JOB_MAX,
+    job_add, job_find_by_id, job_list, job_reap, job_remove_by_id, job_set_running,
 };
-pub use service::{tab_complete, TabResult};
+pub use service::tab_complete;

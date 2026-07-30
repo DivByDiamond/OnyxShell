@@ -1,8 +1,8 @@
-pub mod parse;
 pub mod exec;
+pub mod parse;
 
-pub use parse::parse;
 pub use exec::execute;
+pub use parse::{parse, seg_to_args};
 
 pub const MAX_SEGMENTS: usize = 8;
 pub const MAX_ARGS_PER: usize = 16;

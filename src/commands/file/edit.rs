@@ -29,7 +29,7 @@ pub(crate) fn cmd_cat(args: &[&[u8]]) {
             }
             io::write_raw(&buf[..n as usize]);
         }
-        let _ = unsafe {
+        unsafe {
             syscalls::close(fd as u64);
         };
     }

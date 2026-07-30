@@ -30,7 +30,7 @@ impl<T: Copy + ConstDefault> Vec<T> {
         self.len == 0
     }
 
-    pub fn iter(&self) -> core::slice::Iter<T> {
+    pub fn iter(&self) -> core::slice::Iter<'_, T> {
         self.items[..self.len].iter()
     }
 

@@ -140,10 +140,7 @@ pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> {
                     i = j + 1;
                     continue;
                 }
-            } else if (next >= b'A' && next <= b'Z')
-                || (next >= b'a' && next <= b'z')
-                || next == b'_'
-            {
+            } else if next.is_ascii_uppercase() || next.is_ascii_lowercase() || next == b'_' {
                 let mut j = i + 1;
                 while j < line.len()
                     && ((line[j] >= b'A' && line[j] <= b'Z')
