@@ -1,5 +1,4 @@
 use crate::features;
-use crate::io;
 use crate::path;
 use crate::syscalls;
 
@@ -7,7 +6,7 @@ mod run;
 pub(crate) mod script;
 
 pub(crate) use run::{cmd_exec, cmd_run};
-pub(crate) use script::{cmd_bg, cmd_fg, cmd_jobs, cmd_source, do_script};
+pub(crate) use script::{cmd_bg, cmd_fg, cmd_jobs, cmd_source};
 fn search_path(cmd: &[u8]) -> Option<[u8; path::PATH_MAX]> {
     if cmd.contains(&b'/') {
         return None;
@@ -112,7 +111,7 @@ pub(crate) fn parse_job_id(arg: &[u8]) -> usize {
     if arg.len() > 1 && arg[0] == b'%' {
         let mut id = 0usize;
         for &b in &arg[1..] {
-            if b >= b'0' && b <= b'9' {
+            if b.is_ascii_digit() {
                 id = match id
                     .checked_mul(10)
                     .and_then(|v| v.checked_add((b - b'0') as usize))

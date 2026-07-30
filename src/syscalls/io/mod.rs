@@ -1,3 +1,6 @@
+pub mod proc;
+pub mod tty;
+
 pub use super::consts::*;
 use core::arch::asm;
 
@@ -26,7 +29,7 @@ pub unsafe fn close(fd: u64) -> i64 {
 }
 
 pub unsafe fn read_fd(fd: u64, buf: *mut u8, len: u64) -> i64 {
-    super::io::tty::read(fd, buf, len)
+    self::tty::read(fd, buf, len)
 }
 
 pub unsafe fn write_fd(fd: u64, buf: *const u8, len: usize) -> i64 {

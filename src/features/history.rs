@@ -151,7 +151,7 @@ pub unsafe fn history_expand(line: &[u8]) -> Vec<u8> {
                     continue;
                 }
             }
-            if next >= b'0' && next <= b'9' {
+            if next.is_ascii_digit() {
                 let mut j = i + 1;
                 let mut n = 0usize;
                 while j < line.len() && line[j] >= b'0' && line[j] <= b'9' {

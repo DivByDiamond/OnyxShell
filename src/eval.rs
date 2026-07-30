@@ -36,19 +36,6 @@ pub unsafe fn eval_line(raw: &[u8]) {
         return;
     }
 
-    if has_op(s) {
-        static mut G_EXPANDED: [u8; LINE_MAX] = [0u8; LINE_MAX];
-        let n = s.len().min(LINE_MAX - 1);
-        for j in 0..n {
-            G_EXPANDED[j] = s[j];
-        }
-        G_EXPANDED[n] = 0;
-        features::history_push(&G_EXPANDED[..n]);
-        let p = pipeline::parse(&G_EXPANDED[..n]);
-        pipeline::execute(&G_EXPANDED[..n], &p);
-        return;
-    }
-
     features::history_push(s);
 
     static mut G_TOKEN_OFFSETS: [(usize, usize); 16] = [(0, 0); 16];
