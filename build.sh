@@ -1,5 +1,5 @@
 #!/bin/bash
-# build.sh — compile OnyxShell and convert to OnyxExec v2 (.onx) format.
+# build.sh - compile OnyxShell and convert to OnyxExec v2 (.onx) format.
 #
 # Usage:
 #   ./build.sh
@@ -9,8 +9,8 @@
 #   - elf2onx tool (built from OnyxKernel/tools)
 #
 # Output:
-#   build/onyx-osh   — raw RISC-V ELF
-#   build/osh.onx    — OnyxExec v2 binary (place at /bin/osh in the disk image)
+#   build/onyx-osh   - raw RISC-V ELF
+#   build/osh.onx    - OnyxExec v2 binary (place at /bin/osh in the disk image)
 
 set -e
 
@@ -27,7 +27,7 @@ cargo build --release 2>&1 | tail -5
 ELF="$HERE/target/riscv64gc-unknown-none-elf/release/onyx-osh"
 
 if [ ! -f "$ELF" ]; then
-    echo "ERROR: $ELF not found — build failed?"
+    echo "ERROR: $ELF not found - build failed?"
     exit 1
 fi
 
