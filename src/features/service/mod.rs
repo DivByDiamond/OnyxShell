@@ -1,6 +1,6 @@
 //! Tab completion for built-in commands and filesystem paths.
 
-use crate::features::buffer::{Vec, line_to_vec};
+use crate::features::buffer::{line_to_vec, Vec};
 use crate::features::service::glob::{entry_startswith, scan_dir_entries, split_dir_and_prefix};
 use crate::io;
 
@@ -96,7 +96,7 @@ pub unsafe fn tab_complete(line: &[u8], cursor: usize) -> TabResult {
             break;
         }
     }
-    let mut printed = false;
+    let printed;
     if common > tok.len() {
         let mut new_line: Vec<u8> = Vec::new();
         new_line.extend_from_slice(&line[..tok_start]);

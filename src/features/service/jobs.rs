@@ -95,7 +95,6 @@ pub unsafe fn job_reap() {
         if pid <= 0 {
             break;
         }
-        let mut found = false;
         for i in 0..G_JOB_COUNT {
             if G_JOB_PIDS[i] as i64 == pid {
                 io::write_raw(b"[");
@@ -109,7 +108,6 @@ pub unsafe fn job_reap() {
                     G_JOB_RUNNING[j] = G_JOB_RUNNING[j + 1];
                 }
                 G_JOB_COUNT -= 1;
-                found = true;
                 break;
             }
         }
