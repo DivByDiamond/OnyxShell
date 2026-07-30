@@ -1,5 +1,5 @@
 #!/bin/bash
-# test_qemu.sh — build the full OnyxOS stack with the new OnyxShell and
+# test_qemu.sh - build the full OnyxOS stack with the new OnyxShell and
 # launch QEMU for interactive testing.
 #
 # Usage:
