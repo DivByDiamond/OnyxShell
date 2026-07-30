@@ -9,13 +9,11 @@ unsafe fn clear_line(line: &[u8], _cursor: usize) {
 }
 pub unsafe fn raw_mode_repl() -> ! {
     let mut line: [u8; LINE_MAX] = [0u8; LINE_MAX];
-    let mut line_len: usize = 0;
-    let mut cursor: usize = 0;
     let mut rx_buf = [0u8; 16];
     loop {
+        let mut line_len: usize = 0;
+        let mut cursor: usize = 0;
         syscalls::write(1, PROMPT.as_ptr(), PROMPT.len());
-        line_len = 0;
-        cursor = 0;
         features::nav_reset();
         'line_loop: loop {
             let n = syscalls::read(0, rx_buf.as_mut_ptr(), rx_buf.len() as u64);
@@ -136,8 +134,6 @@ pub unsafe fn raw_mode_repl() -> ! {
                     }
                     0x03 => {
                         syscalls::write(1, b"^C\r\n".as_ptr(), 4);
-                        line_len = 0;
-                        cursor = 0;
                         break 'line_loop;
                     }
                     0x04 => {
