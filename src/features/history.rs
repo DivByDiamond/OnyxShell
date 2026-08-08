@@ -33,9 +33,7 @@ pub unsafe fn history_push(line: &[u8]) {
     }
     let slot = G_HISTORY_COUNT % HISTORY_SIZE;
     let n = end.min(HISTORY_LINE_MAX - 1);
-    for i in 0..n {
-        G_HISTORY[slot][i] = line[i];
-    }
+    G_HISTORY[slot][..n].copy_from_slice(&line[..n]);
     G_HISTORY[slot][n] = 0;
     G_HISTORY_LEN[slot] = n as u8;
     G_HISTORY_COUNT = G_HISTORY_COUNT.saturating_add(1);

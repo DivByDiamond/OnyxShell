@@ -35,8 +35,7 @@ pub(crate) fn cmd_ls(args: &[&[u8]]) {
     for a in args {
         if a == b"-l" {
             long_format = true;
-        } else if a == b"-a" {
-        } else if !a.is_empty() && a[0] == b'-' && a.len() > 1 {
+        } else if a == b"-a" || (!a.is_empty() && a[0] == b'-' && a.len() > 1) {
         } else if path_arg.is_empty() {
             path_arg = a;
         }

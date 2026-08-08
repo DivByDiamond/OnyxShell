@@ -102,9 +102,7 @@ pub(crate) fn check_shebang(path: *const u8) -> Option<[u8; 256]> {
 
     let mut result = [0u8; 256];
     let n = (end - start).min(255);
-    for i in 0..n {
-        result[i] = buf[start + i];
-    }
+    result[..n].copy_from_slice(&buf[start..start + n]);
     Some(result)
 }
 pub(crate) fn parse_job_id(arg: &[u8]) -> usize {
@@ -177,8 +175,7 @@ fn build_shebang_argv(
     argv_ptrs[argc] = argv_strs[argc].as_ptr() as u64;
     argc += 1;
 
-    for i in 1..args.len().min(super::MAX_ARGS - 2) {
-        let arg = args[i];
+    for &arg in &args[1..args.len().min(super::MAX_ARGS - 2)] {
         if arg.len() >= path::PATH_MAX {
             break;
         }

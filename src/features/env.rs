@@ -39,9 +39,7 @@ pub unsafe fn env_set(key: &[u8], val: &[u8]) {
     for i in 0..G_ENV_COUNT {
         let klen = G_ENV_KEY_LEN[i] as usize;
         if &G_ENV_KEYS[i][..klen] == key {
-            for j in 0..vn {
-                G_ENV_VALS[i][j] = val[j];
-            }
+            G_ENV_VALS[i][..vn].copy_from_slice(&val[..vn]);
             G_ENV_VALS[i][vn] = 0;
             G_ENV_VAL_LEN[i] = vn as u8;
             return;
@@ -52,14 +50,10 @@ pub unsafe fn env_set(key: &[u8], val: &[u8]) {
         return;
     }
     let slot = G_ENV_COUNT;
-    for j in 0..kn {
-        G_ENV_KEYS[slot][j] = key[j];
-    }
+    G_ENV_KEYS[slot][..kn].copy_from_slice(&key[..kn]);
     G_ENV_KEYS[slot][kn] = 0;
     G_ENV_KEY_LEN[slot] = kn as u8;
-    for j in 0..vn {
-        G_ENV_VALS[slot][j] = val[j];
-    }
+    G_ENV_VALS[slot][..vn].copy_from_slice(&val[..vn]);
     G_ENV_VALS[slot][vn] = 0;
     G_ENV_VAL_LEN[slot] = vn as u8;
     G_ENV_COUNT += 1;
@@ -101,14 +95,14 @@ pub unsafe fn build_envp(
         let klen = G_ENV_KEY_LEN[i] as usize;
         let vlen = G_ENV_VAL_LEN[i] as usize;
         let mut pos = 0;
-        for j in 0..klen {
-            strings[count][pos] = G_ENV_KEYS[i][j];
+        for &b in &G_ENV_KEYS[i][..klen] {
+            strings[count][pos] = b;
             pos += 1;
         }
         strings[count][pos] = b'=';
         pos += 1;
-        for j in 0..vlen {
-            strings[count][pos] = G_ENV_VALS[i][j];
+        for &b in &G_ENV_VALS[i][..vlen] {
+            strings[count][pos] = b;
             pos += 1;
         }
         strings[count][pos] = 0;

@@ -41,9 +41,7 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         let (off, len) = p.stdout_file;
         static mut G_OUT_PATH: [u8; 256] = [0u8; 256];
         let n = len.min(255);
-        for j in 0..n {
-            G_OUT_PATH[j] = line[off + j];
-        }
+        G_OUT_PATH[..n].copy_from_slice(&line[off..off + n]);
         G_OUT_PATH[n] = 0;
         syscalls::open(
             G_OUT_PATH.as_ptr(),
@@ -57,9 +55,7 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         let (off, len) = p.stdin_file;
         static mut G_IN_PATH: [u8; 256] = [0u8; 256];
         let n = len.min(255);
-        for j in 0..n {
-            G_IN_PATH[j] = line[off + j];
-        }
+        G_IN_PATH[..n].copy_from_slice(&line[off..off + n]);
         G_IN_PATH[n] = 0;
         syscalls::open(G_IN_PATH.as_ptr(), syscalls::O_RDONLY as u64, 0)
     } else {
@@ -160,15 +156,13 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         spawned_count += 1;
         last_pid = pid;
     }
-    for i in 0..spawned_count {
-        let (fd, _) = parent_close[i];
+    for &(fd, _) in &parent_close[..spawned_count] {
         if fd > 2 {
             syscalls::close(fd as u64);
         }
     }
     if !p.background {
-        for i in 0..spawned_count {
-            let pid = spawned_pids[i];
+        for &pid in &spawned_pids[..spawned_count] {
             if pid > 0 {
                 let mut s: i32 = 0;
                 syscalls::waitpid(pid as u64, &mut s, 0);

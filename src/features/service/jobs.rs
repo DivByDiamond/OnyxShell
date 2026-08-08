@@ -26,8 +26,8 @@ pub unsafe fn job_add(pid: i32) -> usize {
 }
 
 pub unsafe fn job_remove_by_id(job_id: usize) -> bool {
-    for i in 0..G_JOB_COUNT {
-        if G_JOB_IDS[i] == job_id {
+    for (i, &id) in G_JOB_IDS[..G_JOB_COUNT].iter().enumerate() {
+        if id == job_id {
             for j in i..G_JOB_COUNT - 1 {
                 G_JOB_IDS[j] = G_JOB_IDS[j + 1];
                 G_JOB_PIDS[j] = G_JOB_PIDS[j + 1];

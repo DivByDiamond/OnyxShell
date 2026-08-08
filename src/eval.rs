@@ -19,9 +19,7 @@ pub unsafe fn eval_line(raw: &[u8]) {
     if has_op(s) {
         static mut G_HIST: [u8; LINE_MAX] = [0u8; LINE_MAX];
         let n = s.len().min(LINE_MAX - 1);
-        for j in 0..n {
-            G_HIST[j] = s[j];
-        }
+        G_HIST[..n].copy_from_slice(&s[..n]);
         G_HIST[n] = 0;
         features::history_push(&G_HIST[..n]);
         let p = pipeline::parse(&G_HIST[..n]);
@@ -47,8 +45,7 @@ pub unsafe fn eval_line(raw: &[u8]) {
     static mut G_EXPANDED_ARGS: [[u8; 128]; 32] = [[0u8; 128]; 32];
     static mut G_ARGS: [&[u8]; 32] = [&[]; 32];
     let mut n_args = 0usize;
-    for ti in 0..ntok {
-        let (off, len) = G_TOKEN_OFFSETS[ti];
+    for &(off, len) in &G_TOKEN_OFFSETS[..ntok] {
         let tok = &s[off..off + len];
         let expansions = features::glob_expand(tok);
         for j in 0..expansions.len() {
