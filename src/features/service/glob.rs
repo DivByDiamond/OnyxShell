@@ -25,17 +25,10 @@ pub fn glob_expand(tok: &[u8]) -> Vec<[u8; 128]> {
         let entry_name = &entry[..entry_len];
         if glob_match(pattern, entry_name) {
             let mut buf = [0u8; 128];
-            let mut pos = 0;
             let dn = dir_path.len().min(64);
-            for i in 0..dn {
-                buf[pos] = dir_path[i];
-                pos += 1;
-            }
-            let fn_len = entry_name.len().min(127 - pos);
-            for i in 0..fn_len {
-                buf[pos] = entry_name[i];
-                pos += 1;
-            }
+            buf[..dn].copy_from_slice(&dir_path[..dn]);
+            let fn_len = entry_name.len().min(127 - dn);
+            buf[dn..dn + fn_len].copy_from_slice(&entry_name[..fn_len]);
             result.push(buf);
         }
     }
@@ -69,9 +62,7 @@ pub fn scan_dir_entries(dir_path: &[u8]) -> Vec<[u8; 64]> {
     let mut result: Vec<[u8; 64]> = Vec::new();
     let mut path_buf = [0u8; 256];
     let n = dir_path.len().min(255);
-    for i in 0..n {
-        path_buf[i] = dir_path[i];
-    }
+    path_buf[..n].copy_from_slice(&dir_path[..n]);
     path_buf[n] = 0;
     if n == 0 {
         path_buf[0] = b'/';

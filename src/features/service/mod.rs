@@ -1,6 +1,6 @@
 //! Tab completion for built-in commands and filesystem paths.
 
-use crate::features::buffer::{line_to_vec, Vec};
+use crate::features::buffer::{Vec, line_to_vec};
 use crate::features::service::glob::{entry_startswith, scan_dir_entries, split_dir_and_prefix};
 use crate::io;
 

@@ -35,9 +35,7 @@ pub unsafe fn raw_mode_repl() -> ! {
                                 if let Some(entry) = features::nav_up() {
                                     clear_line(&line[..line_len], cursor);
                                     let cn = entry.len().min(LINE_MAX - 1);
-                                    for j in 0..cn {
-                                        line[j] = entry[j];
-                                    }
+                                    line[..cn].copy_from_slice(&entry[..cn]);
                                     line_len = cn;
                                     cursor = cn;
                                     syscalls::write(1, line.as_ptr(), line_len);
@@ -50,9 +48,7 @@ pub unsafe fn raw_mode_repl() -> ! {
                                     Some(entry) => {
                                         clear_line(&line[..line_len], cursor);
                                         let cn = entry.len().min(LINE_MAX - 1);
-                                        for j in 0..cn {
-                                            line[j] = entry[j];
-                                        }
+                                        line[..cn].copy_from_slice(&entry[..cn]);
                                         line_len = cn;
                                         cursor = cn;
                                         syscalls::write(1, line.as_ptr(), line_len);
@@ -116,9 +112,7 @@ pub unsafe fn raw_mode_repl() -> ! {
                         let new_cursor = result.cursor;
                         clear_line(&line[..line_len], cursor);
                         let cn = new_line.len().min(LINE_MAX - 1);
-                        for j in 0..cn {
-                            line[j] = new_line[j];
-                        }
+                        line[..cn].copy_from_slice(&new_line[..cn]);
                         line_len = cn;
                         cursor = new_cursor.min(cn);
                         if result.printed {
@@ -175,9 +169,7 @@ pub unsafe fn raw_mode_repl() -> ! {
         if eval::has_op(&line[..line_len]) {
             static mut G_RAW: [u8; LINE_MAX] = [0u8; LINE_MAX];
             let n = line_len.min(LINE_MAX - 1);
-            for j in 0..n {
-                G_RAW[j] = line[j];
-            }
+            G_RAW[..n].copy_from_slice(&line[..n]);
             G_RAW[n] = 0;
             let p = pipeline::parse(&G_RAW[..n]);
             pipeline::execute(&G_RAW[..n], &p);

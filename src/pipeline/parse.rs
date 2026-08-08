@@ -8,13 +8,10 @@ pub unsafe fn seg_to_args<'b>(
     args: &'b mut [&'b [u8]; MAX_ARGS_PER],
 ) -> &'b [&'b [u8]] {
     let n_args = seg.n_args;
-    for i in 0..n_args {
-        let (off, len) = seg.args[i];
+    for (item, &(off, len)) in buf.iter_mut().zip(seg.args.iter()).take(n_args) {
         let n = len.min(63);
-        for j in 0..n {
-            buf[i][j] = line[off + j];
-        }
-        buf[i][n] = 0;
+        item[..n].copy_from_slice(&line[off..off + n]);
+        item[n] = 0;
     }
     for i in 0..n_args {
         let len = seg.args[i].1.min(63);

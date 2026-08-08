@@ -84,9 +84,7 @@ fn execute_line(line: &[u8]) {
         static mut G_EXPANDED: [u8; 256] = [0u8; 256];
         let n = expanded_slice.len().min(255);
         unsafe {
-            for j in 0..n {
-                G_EXPANDED[j] = expanded_slice[j];
-            }
+            G_EXPANDED[..n].copy_from_slice(&expanded_slice[..n]);
             G_EXPANDED[n] = 0;
             let p = pipeline::parse(&G_EXPANDED[..n]);
             pipeline::execute(&G_EXPANDED[..n], &p);
@@ -103,8 +101,7 @@ fn execute_line(line: &[u8]) {
     static mut G_EXPANDED_ARGS: [[u8; 128]; 32] = [[0u8; 128]; 32];
     static mut G_ARGS: [&[u8]; 32] = [&[]; 32];
     let mut n_args = 0usize;
-    for ti in 0..ntok {
-        let (off, len) = unsafe { G_TOKEN_OFFSETS[ti] };
+    for &(off, len) in unsafe { &G_TOKEN_OFFSETS[..ntok] } {
         let tok = &expanded_slice[off..off + len];
         let expansions = features::glob_expand(tok);
         for j in 0..expansions.len() {
