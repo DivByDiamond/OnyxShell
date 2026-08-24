@@ -1,11 +1,15 @@
 use super::{LINE_MAX, PROMPT};
 use crate::{eval, features, pipeline, syscalls};
 unsafe fn clear_line(line: &[u8], _cursor: usize) {
+    // Erase the PROMPT plus the line text (the old version only covered
+    // line.len() columns, wiping the prompt but never restoring it —
+    // history navigation left commands without the "osh$ " prefix).
     syscalls::write(1, b"\r".as_ptr(), 1);
-    for _ in 0..line.len() {
+    for _ in 0..(PROMPT.len() + line.len()) {
         syscalls::write(1, b" ".as_ptr(), 1);
     }
     syscalls::write(1, b"\r".as_ptr(), 1);
+    syscalls::write(1, PROMPT.as_ptr(), PROMPT.len());
 }
 pub unsafe fn raw_mode_repl() -> ! {
     let mut line: [u8; LINE_MAX] = [0u8; LINE_MAX];

@@ -38,7 +38,9 @@ pub(crate) fn cmd_help(_args: &[&[u8]]) {
     io::write_line("  bg %<jobid>         continue job in background");
     io::write_line("  exit                exit the shell");
     io::write_line("");
-    io::write_line("Note: rm, mkdir, cp, mv, touch require root (ring 1).");
+    io::write_line("Note: creating/removing files and dirs (rm, mkdir, cp,");
+    io::write_line("mv, touch) requires root (ring 1). Editing EXISTING");
+    io::write_line("files (cat, echo >, editors) is allowed for all users.");
 }
 
 pub(crate) fn cmd_echo(args: &[&[u8]]) {
