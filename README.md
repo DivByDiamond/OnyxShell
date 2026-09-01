@@ -40,7 +40,7 @@
 ----
 
 OnyxShell (`/bin/osh`) is the default command-line shell for
-[OnyxOS](https://github.com/loki5512344/OnyxKernel). It is a freestanding
+[OnyxOS](https://github.com/DivByDiamond/OnyxKernel). It is a freestanding
 RISC-V 64-bit binary written in 90% Rust (`no_std`, `no_main`) that compiles
 to the OnyxExec v2 format and runs in ring 1 (root space) when launched by
 `/bin/login`.
@@ -50,7 +50,7 @@ The shell provides built-in implementations of the most common Unix commands —
 `echo`, `whoami`, `uname`, `date`, `clear`, `help`, `exit`, `exec`, `run`, and
 `ver`. No external binaries are required for basic file management.
 
-Part of the [OnyxOS](https://github.com/loki5512344/OnyxKernel) ecosystem.
+Part of the [OnyxOS](https://github.com/DivByDiamond/OnyxKernel) ecosystem.
 
 ----
 
@@ -384,9 +384,9 @@ minimal, surgical fixes that do not change the kernel's architecture:
 
 | Project | Description |
 |---------|-------------|
-| [OnyxKernel](https://github.com/loki5512344/OnyxKernel) | RISC-V 64-bit operating system kernel |
-| [OnyxBoot](https://github.com/loki5512344/OnyxBoot) | Minimalist RISC-V 64-bit bootloader |
-| [OnyxCompiller](https://github.com/loki5512344/OnyxCompiller) | C → RV64 compiler (runs on OnyxOS) |
+| [OnyxKernel](https://github.com/DivByDiamond/OnyxKernel) | RISC-V 64-bit operating system kernel |
+| [OnyxBoot](https://github.com/DivByDiamond/OnyxBoot) | Minimalist RISC-V 64-bit bootloader |
+| [OnyxCompiller](https://github.com/DivByDiamond/OnyxCompiller) | C → RV64 compiler (runs on OnyxOS) |
 
 ----
 
