@@ -112,7 +112,16 @@ pub(crate) fn cmd_run(args: &[&[u8]]) {
             return;
         }
 
-        let pid = unsafe { syscalls::spawn(argv_strs[0].as_ptr(), argv_ptrs.as_ptr(), 0) };
+        let pid = unsafe {
+            // Fix 2026-09-04 (scripted E2E, TumRedSun report class): pass the
+            // shell's own ring as the spawn hint. The old hardcoded 0 made
+            // every `run` child land in ring 2 / uid 1000 even under root,
+            // so e.g. `run passwd` died with EPERM on /etc/passwd. The
+            // kernel clamps the hint to the caller's ring, so this can never
+            // elevate an unprivileged shell.
+            let hint = syscalls::getring() as u8;
+            syscalls::spawn(argv_strs[0].as_ptr(), argv_ptrs.as_ptr(), hint)
+        };
         if pid < 0 {
             io::write_error_errno("run", pid);
             return;
@@ -140,7 +149,11 @@ pub(crate) fn cmd_run(args: &[&[u8]]) {
         return;
     }
 
-    let pid = unsafe { syscalls::spawn(path_buf.as_ptr(), argv_ptrs.as_ptr(), 0) };
+    let pid = unsafe {
+        // Same ring_hint fix as the shebang branch above.
+        let hint = syscalls::getring() as u8;
+        syscalls::spawn(path_buf.as_ptr(), argv_ptrs.as_ptr(), hint)
+    };
     if pid < 0 {
         io::write_error_errno("run", pid);
         return;
