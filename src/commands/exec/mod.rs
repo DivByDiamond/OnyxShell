@@ -4,9 +4,12 @@ use crate::syscalls;
 
 mod run;
 pub(crate) mod script;
+mod external;
 
 pub(crate) use run::{cmd_exec, cmd_run};
 pub(crate) use script::{cmd_bg, cmd_fg, cmd_jobs, cmd_source};
+pub(crate) use external::try_external;
+
 fn search_path(cmd: &[u8]) -> Option<[u8; path::PATH_MAX]> {
     if cmd.contains(&b'/') {
         return None;

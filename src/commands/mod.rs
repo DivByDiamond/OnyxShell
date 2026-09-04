@@ -91,7 +91,7 @@ pub fn dispatch(args: &[&[u8]]) {
         sys::cmd_date(rest);
     } else if cmd == b"ver" || cmd == b"version" {
         sys::cmd_ver(rest);
-    } else {
+    } else if !exec::try_external(args) {
         io::write_raw(b"osh: ");
         io::write_raw(cmd);
         io::write_raw(b": command not found (try 'help')\n");

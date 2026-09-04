@@ -1,4 +1,4 @@
-#![allow(dead_code, non_upper_case_globals)]
+#![allow(dead_code, non_upper_case_globals, unused_imports)]
 
 pub mod comm;
 pub mod consts;
