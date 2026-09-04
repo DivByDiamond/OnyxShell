@@ -1,13 +1,14 @@
-//! Shell features: globbing, history, tab-completion, env, jobs.
+//! Shell features: globbing, history, tab-completion, env, jobs, keymap.
 
 pub mod buffer;
 pub mod env;
 pub mod history;
+pub mod keymap;
 pub mod service;
 
 pub use env::{
-    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX, build_envp, env_get, env_init, env_list, env_set, env_unset,
-    expand_tilde, expand_vars,
+    build_envp, env_get, env_init, env_list, env_set, env_unset, expand_tilde, expand_vars,
+    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX,
 };
 pub use history::{history_expand, history_push, nav_down, nav_reset, nav_up};
 pub use service::glob::glob_expand;
