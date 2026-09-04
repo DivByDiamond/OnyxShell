@@ -40,37 +40,37 @@
 ----
 
 OnyxShell (`/bin/osh`) is the default command-line shell for
-[OnyxOS](https://github.com/DivByDiamond/OnyxKernel). It is a freestanding
+[OnyxOS](https://github.com/DivByDiamond/OnyxOS). It is a freestanding
 RISC-V 64-bit binary written in 90% Rust (`no_std`, `no_main`) that compiles
 to the OnyxExec v2 format and runs in ring 1 (root space) when launched by
 `/bin/login`.
 
-The shell provides built-in implementations of the most common Unix commands —
-`ls`, `cat`, `rm`, `cd`, `cp`, `mv`, `mkdir` — plus `touch`, `stat`, `pwd`,
+The shell provides built-in implementations of the most common Unix commands -
+`ls`, `cat`, `rm`, `cd`, `cp`, `mv`, `mkdir` - plus `touch`, `stat`, `pwd`,
 `echo`, `whoami`, `uname`, `date`, `clear`, `help`, `exit`, `exec`, `run`, and
 `ver`. No external binaries are required for basic file management.
 
-Part of the [OnyxOS](https://github.com/DivByDiamond/OnyxKernel) ecosystem.
+Part of the [OnyxOS](https://github.com/DivByDiamond/OnyxOS) ecosystem.
 
 ----
 
 ## Key Features
 
-- **90% Rust** — `no_std`, `no_main`, compiled with `riscv64gc-unknown-none-elf`
-- **OnyxExec v2 format** — compressed with `elf2onx --ring=1 --compress`
-- **20 built-in commands** — `ls`, `cat`, `cp`, `mv`, `rm`, `mkdir`, `touch`,
+- **90% Rust** - `no_std`, `no_main`, compiled with `riscv64gc-unknown-none-elf`
+- **OnyxExec v2 format** - compressed with `elf2onx --ring=1 --compress`
+- **20 built-in commands** - `ls`, `cat`, `cp`, `mv`, `rm`, `mkdir`, `touch`,
   `stat`, `cd`, `pwd`, `echo`, `whoami`, `uname`, `date`, `clear`, `help`,
   `exit`, `exec`, `run`, `ver`
-- **Path resolution** — relative paths (`foo`, `./bar`, `../baz`) resolved
+- **Path resolution** - relative paths (`foo`, `./bar`, `../baz`) resolved
   against the kernel's cwd via `getcwd`; `.` and `..` normalized lexically
-- **Long-format `ls -l`** — shows file type, permissions, size, and name
-- **Detailed `stat`** — displays inode, mode, size, blocks, timestamps, and
+- **Long-format `ls -l`** - shows file type, permissions, size, and name
+- **Detailed `stat`** - displays inode, mode, size, blocks, timestamps, and
   more from the kernel's Linux-compatible `struct stat`
-- **External program execution** — `exec` replaces the shell; `run` spawns a
+- **External program execution** - `exec` replaces the shell; `run` spawns a
   child process and waits (root-only, via `SYS_spawn` + `SYS_wait`)
-- **Error reporting** — all file-mutation commands translate kernel errno
+- **Error reporting** - all file-mutation commands translate kernel errno
   codes to human-readable messages
-- **Line editing** — the kernel's UART driver provides backspace and echo;
+- **Line editing** - the kernel's UART driver provides backspace and echo;
   the shell just reads complete lines via `SYS_read`
 
 ----
@@ -110,19 +110,19 @@ will get `Permission denied` from file-mutation commands.
 
 ```
 osh/
-├── Cargo.toml           — package definition (no_std, no_main)
-├── .cargo/config.toml   — RISC-V target + linker flags
-├── linker.ld            — linker script (page-aligned .bss, entry at 0x10000)
-├── build.rs             — passes linker script to rustc
+├── Cargo.toml           - package definition (no_std, no_main)
+├── .cargo/config.toml   - RISC-V target + linker flags
+├── linker.ld            - linker script (page-aligned .bss, entry at 0x10000)
+├── build.rs             - passes linker script to rustc
 ├── src/
-│   ├── main.rs          — _start entry point + main REPL loop
-│   ├── syscalls.rs      — ecall wrappers for the OnyxKernel syscall ABI
-│   ├── io.rs            — write_str / write_u64 / write_hex / read_line
-│   ├── path.rs          — relative-to-absolute path resolution + normalization
-│   └── commands.rs      — all 20 command implementations
-├── build.sh             — builds the shell + converts ELF → osh.onx
-├── test_qemu.sh         — full-stack QEMU test (builds kernel, boot, disk)
-└── README.md            — this file
+│   ├── main.rs          - _start entry point + main REPL loop
+│   ├── syscalls.rs      - ecall wrappers for the OnyxKernel syscall ABI
+│   ├── io.rs            - write_str / write_u64 / write_hex / read_line
+│   ├── path.rs          - relative-to-absolute path resolution + normalization
+│   └── commands.rs      - all 20 command implementations
+├── build.sh             - builds the shell + converts ELF -> osh.onx
+├── test_qemu.sh         - full-stack QEMU test (builds kernel, boot, disk)
+└── README.md            - this file
 ```
 
 ----
@@ -134,9 +134,9 @@ osh/
 | Tool | Version | Purpose |
 |------|---------|---------|
 | Rust nightly | ≥ 1.85 | Shell compilation |
-| `riscv64gc-unknown-none-elf` target | — | Cross-compilation |
-| `elf2onx` | — | ELF → OnyxExec v2 conversion (from OnyxKernel/tools) |
-| `qemu-system-riscv64` | — | Testing (optional) |
+| `riscv64gc-unknown-none-elf` target | - | Cross-compilation |
+| `elf2onx` | - | ELF -> OnyxExec v2 conversion (from OnyxKernel/tools) |
+| `qemu-system-riscv64` | - | Testing (optional) |
 
 ### Install Rust target
 
@@ -150,7 +150,7 @@ $ rustup target add riscv64gc-unknown-none-elf
 $ ./build.sh
 ```
 
-This produces `build/osh.onx` — a compressed OnyxExec v2 binary tagged as
+This produces `build/osh.onx` - a compressed OnyxExec v2 binary tagged as
 ring 1 (root space). Place this file at `/bin/osh` in your OnyxFS disk image.
 
 ### Manual build
@@ -176,8 +176,8 @@ The `test_qemu.sh` script builds the entire OnyxOS stack (OnyxBoot +
 OnyxKernel + OnyxShell) and launches QEMU:
 
 ```console
-$ ./test_qemu.sh          # interactive mode — type commands at osh$ prompt
-$ ./test_qemu.sh -s       # scripted mode — runs a test suite and exits
+$ ./test_qemu.sh          # interactive mode - type commands at osh$ prompt
+$ ./test_qemu.sh -s       # scripted mode - runs a test suite and exits
 ```
 
 ### Prerequisites for QEMU testing
@@ -191,7 +191,7 @@ $ ./test_qemu.sh -s       # scripted mode — runs a test suite and exits
 ```
 OnyxBoot v0.4 [riscv-virtio,qemu]
 ...
-[kernel] OnyxKernel v0.4 — RISC-V 64-bit
+[kernel] OnyxKernel v0.4 - RISC-V 64-bit
 ...
 [init] OnyxOS init v0.4 (service manager)
 [init] launching /bin/login
@@ -252,7 +252,7 @@ The shell uses these syscalls:
 | Syscall | Number | Purpose |
 |---------|--------|---------|
 | `write` | 1 | Write to stdout (fd 1) |
-| `read` | 2 | Read from stdin (fd 0) — kernel handles line editing |
+| `read` | 2 | Read from stdin (fd 0) - kernel handles line editing |
 | `exit` | 3 | Terminate the shell |
 | `open` | 8 | Open a file (O_RDONLY, O_CREAT, O_WRONLY, O_TRUNC) |
 | `close` | 9 | Close a file descriptor |
@@ -279,7 +279,7 @@ OnyxKernel's VFS requires all paths passed to `open`, `stat`, `unlink`,
 `mkdir`, `rename`, etc. to be **absolute** (starting with `/`). The shell
 accepts relative paths from the user and resolves them in `src/path.rs`:
 
-1. If the path starts with `/`, it is already absolute — normalize `.` and
+1. If the path starts with `/`, it is already absolute - normalize `.` and
    `..` components lexically.
 2. Otherwise, fetch the cwd via `getcwd`, join `cwd + "/" + path`, then
    normalize.
@@ -331,18 +331,18 @@ build-and-test cycle.
 This shell was tested with the following patches applied to OnyxKernel
 (from `onyx-init-patches.zip`):
 
-1. `01-init-service-manager.patch` — rewrites init as a service manager
-2. `02-login-auto-root.patch` — auto-login as root on first boot
-3. `03-auth-plaintext.patch` — plaintext password storage
-4. `04-linker-bss-page-align.patch` — page-align `.bss` in init's linker.ld
-5. `05-run-qemu-manifest.patch` — conditional manifest entries in run_qemu.sh
+1. `01-init-service-manager.patch` - rewrites init as a service manager
+2. `02-login-auto-root.patch` - auto-login as root on first boot
+3. `03-auth-plaintext.patch` - plaintext password storage
+4. `04-linker-bss-page-align.patch` - page-align `.bss` in init's linker.ld
+5. `05-run-qemu-manifest.patch` - conditional manifest entries in run_qemu.sh
 
 ### Critical kernel fixes
 
 Two bugs in OnyxKernel were fixed to make the shell work correctly. These are
 minimal, surgical fixes that do not change the kernel's architecture:
 
-1. **`vfs::create` fd table mismatch** (`kernel/src/fs/vfs/create.rs`) —
+1. **`vfs::create` fd table mismatch** (`kernel/src/fs/vfs/create.rs`) -
    `create` called `alloc_fd` (which uses `G_KERNEL_FDS` when
    `is_kernel_boot()` is true) but then initialized the fd in
    `current().fds` directly. This caused `EBADF` on subsequent `write_fd`
@@ -350,33 +350,21 @@ minimal, surgical fixes that do not change the kernel's architecture:
    `create` wrote to. Fixed by using `fd_set` / `fd_get` (which respect
    `is_kernel_boot()`) instead of accessing `current().fds` directly.
 
-2. **`sys_uname` user-pointer dereference** (`kernel/src/syscall/fs_sys3/info.rs`) —
+2. **`sys_uname` user-pointer dereference** (`kernel/src/syscall/fs_sys3/info.rs`) -
    `sys_uname` wrote to the user buffer via `buf as *mut u8` without
    translating the VA to a PA, causing a kernel page fault. Fixed by
    calling `vmm::translate` first.
 
-3. **`current_pid` state check** (`kernel/src/proc/process/current.rs`) —
+3. **`current_pid` state check** (`kernel/src/proc/process/current.rs`) -
    `current_pid` returned 0 when the current process was not in `Running`
    state, causing `is_kernel_boot()` to return true during syscalls
    (if a timer tick had changed the state). This made `alloc_fd` use
    `G_KERNEL_FDS` instead of the process's own fd table. Fixed by
    returning `(*p).pid` regardless of state.
 
-4. **OnyxBoot `stdbool.h`** (`OnyxBoot/include/types.h`) — added
+4. **OnyxBoot `stdbool.h`** (`OnyxBoot/include/types.h`) - added
    `#include <stdbool.h>` so `bool` is defined for `ext4.c` and `fat.c`.
    Required for GCC 14+ which enforces C99 type correctness.
-
-----
-
-## Roadmap
-
-- [ ] Tab completion for file paths
-- [ ] Command history (up/down arrows)
-- [ ] Pipe (`|`) and redirect (`>`, `<`) operators
-- [ ] Wildcard globbing (`*`, `?`)
-- [ ] Environment variables (`$HOME`, `$PATH`)
-- [ ] Background processes (`&`)
-- [ ] Shell scripts (batch file execution)
 
 ----
 
@@ -386,10 +374,10 @@ minimal, surgical fixes that do not change the kernel's architecture:
 |---------|-------------|
 | [OnyxKernel](https://github.com/DivByDiamond/OnyxKernel) | RISC-V 64-bit operating system kernel |
 | [OnyxBoot](https://github.com/DivByDiamond/OnyxBoot) | Minimalist RISC-V 64-bit bootloader |
-| [OnyxCompiller](https://github.com/DivByDiamond/OnyxCompiller) | C → RV64 compiler (runs on OnyxOS) |
+| [OnyxCompiller](https://github.com/DivByDiamond/OnyxCompiller) | C -> RV64 compiler (runs on OnyxOS) |
 
 ----
 
 ## License
 
-GPL-3.0-or-later — same as OnyxKernel.
+GPL-3.0-or-later - same as OnyxKernel.
