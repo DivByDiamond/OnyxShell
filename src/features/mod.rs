@@ -1,9 +1,8 @@
-//! Shell features: globbing, history, tab-completion, env, jobs, keymap.
+//! Shell features: globbing, history, tab-completion, env, jobs.
 
 pub mod buffer;
 pub mod env;
 pub mod history;
-pub mod keymap;
 pub mod service;
 
 pub use env::{
