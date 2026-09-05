@@ -137,7 +137,15 @@ pub unsafe fn raw_mode_repl() -> ! {
                         i += 1;
                         continue;
                     }
-                    c if (0x20..0x7F).contains(&c) => {
+                    // Printable ASCII, plus raw UTF-8 lead/continuation bytes
+                    // (0x80..=0xFF): the line buffer stores and echoes bytes
+                    // verbatim, so a multi-byte sequence (e.g. Cyrillic,
+                    // 2 bytes per character in UTF-8) round-trips correctly
+                    // as long as every byte of it is accepted here — the old
+                    // `(0x20..0x7F)`-only check silently dropped every byte
+                    // outside 7-bit ASCII, so typing in a non-Latin layout
+                    // produced nothing at all.
+                    c if (0x20..0x7F).contains(&c) || c >= 0x80 => {
                         if line_len < LINE_MAX - 1 {
                             for j in (cursor..line_len).rev() {
                                 line[j + 1] = line[j];
