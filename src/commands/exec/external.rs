@@ -52,7 +52,8 @@ pub(crate) fn try_external(args: &[&[u8]]) -> bool {
         io::write_error("try_external: argument too long");
         return true;
     }
-    let pid = unsafe { syscalls::spawn(full.as_ptr(), argv_ptrs.as_ptr(), 0) };
+    let hint = unsafe { syscalls::getring() } as u8;
+    let pid = unsafe { syscalls::spawn(full.as_ptr(), argv_ptrs.as_ptr(), hint) };
     if pid < 0 {
         io::write_error_errno("spawn", pid);
         return true;

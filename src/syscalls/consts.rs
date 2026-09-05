@@ -56,38 +56,52 @@ pub const SEEK_END: u32 = 2;
 pub const WNOHANG: u32 = 1;
 pub const SIGCONT: i32 = 18;
 
-pub const ENOMEM: i64 = -1;
-pub const EINVAL: i64 = -2;
-pub const ENOENT: i64 = -3;
-pub const EIO: i64 = -4;
-pub const EPERM: i64 = -5;
-pub const ERANGE: i64 = -6;
-pub const ENOSYS: i64 = -7;
-pub const EBUSY: i64 = -8;
-pub const ENOSPC: i64 = -9;
-pub const ENOTDIR: i64 = -10;
-pub const EISDIR: i64 = -11;
-pub const EBADF: i64 = -12;
-pub const EEXIST: i64 = -13;
-pub const EPIPE: i64 = -14;
-pub const EOVERFLOW: i64 = -15;
+// POSIX errno values, matching the kernel's syscall-boundary translation
+// (onyx_core::errno::Errno::to_posix / libonyxc/include/io/errno.h) — NOT
+// the kernel's internal compact ordinals. A raw syscall return is already
+// POSIX-numbered by the time it reaches userspace.
+pub const EPERM: i64 = -1;
+pub const ENOENT: i64 = -2;
+pub const EIO: i64 = -5;
+pub const EBADF: i64 = -9;
+pub const ECHILD: i64 = -10;
+pub const EAGAIN: i64 = -11;
+pub const ENOMEM: i64 = -12;
+pub const EFAULT: i64 = -14;
+pub const EBUSY: i64 = -16;
+pub const EEXIST: i64 = -17;
+pub const ENOTDIR: i64 = -20;
+pub const EISDIR: i64 = -21;
+pub const EINVAL: i64 = -22;
+pub const ENOSPC: i64 = -28;
+pub const EPIPE: i64 = -32;
+pub const ERANGE: i64 = -34;
+pub const ENOSYS: i64 = -38;
+pub const ENOTEMPTY: i64 = -39;
+pub const ELOOP: i64 = -40;
+pub const EOVERFLOW: i64 = -75;
 
 pub fn errno_str(ret: i64) -> &'static [u8] {
     match ret {
-        ENOMEM => b"Out of memory",
-        EINVAL => b"Invalid argument",
+        EPERM => b"Permission denied",
         ENOENT => b"No such file or directory",
         EIO => b"I/O error",
-        EPERM => b"Permission denied",
-        ERANGE => b"Out of range",
-        ENOSYS => b"Function not implemented",
+        EBADF => b"Bad file descriptor",
+        ECHILD => b"No child processes",
+        EAGAIN => b"Resource temporarily unavailable",
+        ENOMEM => b"Out of memory",
+        EFAULT => b"Bad address",
         EBUSY => b"Device or resource busy",
-        ENOSPC => b"No space left on device",
+        EEXIST => b"File exists",
         ENOTDIR => b"Not a directory",
         EISDIR => b"Is a directory",
-        EBADF => b"Bad file descriptor",
-        EEXIST => b"File exists",
+        EINVAL => b"Invalid argument",
+        ENOSPC => b"No space left on device",
         EPIPE => b"Broken pipe",
+        ERANGE => b"Out of range",
+        ENOSYS => b"Function not implemented",
+        ENOTEMPTY => b"Directory not empty",
+        ELOOP => b"Too many levels of symbolic links",
         EOVERFLOW => b"Value too large",
         _ => b"Unknown error",
     }
