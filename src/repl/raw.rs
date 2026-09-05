@@ -31,8 +31,74 @@ pub unsafe fn raw_mode_repl() -> ! {
             let mut i = 0;
             while i < n {
                 let b = rx_buf[i];
+                // Home/End/Delete: xterm sends 3-byte `ESC [ H` / `ESC [ F`;
+                // many other terminals (vt220-style, some Linux consoles)
+                // send the 4-byte tilde form `ESC [ 1 ~` / `ESC [ 4 ~` /
+                // `ESC [ 3 ~` instead. Bug fix (2026-09-05): neither form was
+                // recognized here, so the match below fell through to `_ =>
+                // {}` without consuming the sequence — the loop then reread
+                // the same bytes one at a time through the plain-byte path,
+                // inserting literal '[', 'H'/'F' (or '1'/'4'/'~') characters
+                // into the line instead of moving the cursor.
+                if b == 0x1B && i + 3 < n && rx_buf[i + 1] == b'[' && rx_buf[i + 3] == b'~' {
+                    match rx_buf[i + 2] {
+                        b'1' | b'7' => {
+                            // Home
+                            for _ in 0..cursor {
+                                syscalls::write(1, b"\x1B[D".as_ptr(), 3);
+                            }
+                            cursor = 0;
+                            i += 4;
+                            continue;
+                        }
+                        b'4' | b'8' => {
+                            // End
+                            for _ in 0..(line_len - cursor) {
+                                syscalls::write(1, b"\x1B[C".as_ptr(), 3);
+                            }
+                            cursor = line_len;
+                            i += 4;
+                            continue;
+                        }
+                        b'3' => {
+                            // Delete (forward)
+                            if cursor < line_len {
+                                for j in cursor..line_len - 1 {
+                                    line[j] = line[j + 1];
+                                }
+                                line_len -= 1;
+                                syscalls::write(1, line.as_ptr().add(cursor), line_len - cursor);
+                                syscalls::write(1, b" ".as_ptr(), 1);
+                                for _ in 0..(line_len - cursor + 1) {
+                                    syscalls::write(1, b"\x1B[D".as_ptr(), 3);
+                                }
+                            }
+                            i += 4;
+                            continue;
+                        }
+                        _ => {}
+                    }
+                }
                 if b == 0x1B && i + 2 < n && rx_buf[i + 1] == b'[' {
                     match rx_buf[i + 2] {
+                        b'H' => {
+                            // Home
+                            for _ in 0..cursor {
+                                syscalls::write(1, b"\x1B[D".as_ptr(), 3);
+                            }
+                            cursor = 0;
+                            i += 3;
+                            continue;
+                        }
+                        b'F' => {
+                            // End
+                            for _ in 0..(line_len - cursor) {
+                                syscalls::write(1, b"\x1B[C".as_ptr(), 3);
+                            }
+                            cursor = line_len;
+                            i += 3;
+                            continue;
+                        }
                         b'A' => {
                             if let Some(entry) = features::nav_up() {
                                 clear_line(&line[..line_len], cursor);
