@@ -7,8 +7,8 @@ pub mod keymap;
 pub mod service;
 
 pub use env::{
-    build_envp, env_get, env_init, env_list, env_set, env_unset, expand_tilde, expand_vars,
-    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX,
+    ENV_KEY_MAX, ENV_MAX, ENV_VAL_MAX, build_envp, env_get, env_init, env_list, env_set, env_unset,
+    expand_tilde, expand_vars,
 };
 pub use history::{history_expand, history_push, nav_down, nav_reset, nav_up};
 pub use service::glob::glob_expand;
