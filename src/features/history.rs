@@ -11,7 +11,7 @@ static mut G_HISTORY: [[u8; HISTORY_LINE_MAX]; HISTORY_SIZE] =
 static mut G_HISTORY_LEN: [u8; HISTORY_SIZE] = [0u8; HISTORY_SIZE];
 static mut G_HISTORY_COUNT: usize = 0;
 
-pub unsafe fn history_push(line: &[u8]) {
+pub unsafe fn history_push(line: &[u8]) { unsafe {
     let mut end = line.len();
     while end > 0 && (line[end - 1] == b'\n' || line[end - 1] == b'\r' || line[end - 1] == 0) {
         end -= 1;
@@ -37,9 +37,9 @@ pub unsafe fn history_push(line: &[u8]) {
     G_HISTORY[slot][n] = 0;
     G_HISTORY_LEN[slot] = n as u8;
     G_HISTORY_COUNT = G_HISTORY_COUNT.saturating_add(1);
-}
+}}
 
-pub unsafe fn history_get(n: usize) -> Option<&'static [u8]> {
+pub unsafe fn history_get(n: usize) -> Option<&'static [u8]> { unsafe {
     if G_HISTORY_COUNT == 0 || n == 0 {
         return None;
     }
@@ -52,26 +52,26 @@ pub unsafe fn history_get(n: usize) -> Option<&'static [u8]> {
     let slot = logical % HISTORY_SIZE;
     let len = G_HISTORY_LEN[slot] as usize;
     Some(&G_HISTORY[slot][..len])
-}
+}}
 
-pub unsafe fn history_last() -> Option<&'static [u8]> {
+pub unsafe fn history_last() -> Option<&'static [u8]> { unsafe {
     if G_HISTORY_COUNT == 0 {
         return None;
     }
     let slot = (G_HISTORY_COUNT - 1) % HISTORY_SIZE;
     let len = G_HISTORY_LEN[slot] as usize;
     Some(&G_HISTORY[slot][..len])
-}
+}}
 
 // ── Arrow-key history navigation ───────────────────────────────────────
 
 static mut G_NAV_CURSOR: isize = -1;
 
-pub unsafe fn nav_reset() {
+pub unsafe fn nav_reset() { unsafe {
     G_NAV_CURSOR = -1;
-}
+}}
 
-pub unsafe fn nav_up() -> Option<&'static [u8]> {
+pub unsafe fn nav_up() -> Option<&'static [u8]> { unsafe {
     if G_HISTORY_COUNT == 0 {
         return None;
     }
@@ -89,9 +89,9 @@ pub unsafe fn nav_up() -> Option<&'static [u8]> {
     let slot = logical % HISTORY_SIZE;
     let len = G_HISTORY_LEN[slot] as usize;
     Some(&G_HISTORY[slot][..len])
-}
+}}
 
-pub unsafe fn nav_down() -> Option<&'static [u8]> {
+pub unsafe fn nav_down() -> Option<&'static [u8]> { unsafe {
     if G_NAV_CURSOR <= 0 {
         G_NAV_CURSOR = -1;
         return None;
@@ -101,11 +101,11 @@ pub unsafe fn nav_down() -> Option<&'static [u8]> {
     let slot = logical % HISTORY_SIZE;
     let len = G_HISTORY_LEN[slot] as usize;
     Some(&G_HISTORY[slot][..len])
-}
+}}
 
 // ── History expansion ───────────────────────────────────────────────────
 
-pub unsafe fn history_expand(line: &[u8]) -> Vec<u8> {
+pub unsafe fn history_expand(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
@@ -175,4 +175,4 @@ pub unsafe fn history_expand(line: &[u8]) -> Vec<u8> {
         i += 1;
     }
     out
-}
+}}

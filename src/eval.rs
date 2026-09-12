@@ -5,7 +5,7 @@ pub fn has_op(s: &[u8]) -> bool {
     s.iter().any(|&b| b == b'|' || b == b'>' || b == b'<')
 }
 
-pub unsafe fn eval_line(raw: &[u8]) {
+pub unsafe fn eval_line(raw: &[u8]) { unsafe {
     if raw.is_empty() {
         return;
     }
@@ -66,4 +66,4 @@ pub unsafe fn eval_line(raw: &[u8]) {
         }
     }
     commands::dispatch(&G_ARGS[..n_args]);
-}
+}}

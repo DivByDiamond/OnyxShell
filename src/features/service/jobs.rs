@@ -11,7 +11,7 @@ static mut G_JOB_RUNNING: [bool; JOB_MAX] = [false; JOB_MAX];
 static mut G_JOB_NEXT_ID: usize = 1;
 static mut G_JOB_COUNT: usize = 0;
 
-pub unsafe fn job_add(pid: i32) -> usize {
+pub unsafe fn job_add(pid: i32) -> usize { unsafe {
     if G_JOB_COUNT >= JOB_MAX {
         return 0;
     }
@@ -23,9 +23,9 @@ pub unsafe fn job_add(pid: i32) -> usize {
     G_JOB_RUNNING[idx] = true;
     G_JOB_COUNT += 1;
     job_id
-}
+}}
 
-pub unsafe fn job_remove_by_id(job_id: usize) -> bool {
+pub unsafe fn job_remove_by_id(job_id: usize) -> bool { unsafe {
     for (i, &id) in G_JOB_IDS[..G_JOB_COUNT].iter().enumerate() {
         if id == job_id {
             for j in i..G_JOB_COUNT - 1 {
@@ -38,18 +38,18 @@ pub unsafe fn job_remove_by_id(job_id: usize) -> bool {
         }
     }
     false
-}
+}}
 
-pub unsafe fn job_find_by_id(job_id: usize) -> Option<(usize, i32, bool)> {
+pub unsafe fn job_find_by_id(job_id: usize) -> Option<(usize, i32, bool)> { unsafe {
     for i in 0..G_JOB_COUNT {
         if G_JOB_IDS[i] == job_id {
             return Some((G_JOB_IDS[i], G_JOB_PIDS[i], G_JOB_RUNNING[i]));
         }
     }
     None
-}
+}}
 
-pub unsafe fn job_set_running(job_id: usize, running: bool) -> bool {
+pub unsafe fn job_set_running(job_id: usize, running: bool) -> bool { unsafe {
     for i in 0..G_JOB_COUNT {
         if G_JOB_IDS[i] == job_id {
             G_JOB_RUNNING[i] = running;
@@ -57,29 +57,29 @@ pub unsafe fn job_set_running(job_id: usize, running: bool) -> bool {
         }
     }
     false
-}
+}}
 
 // TODO(2026-09-12): `job_count` / `job_get_by_index` are the `jobs`/`fg`/`bg` introspection surface; current `jobs` builtin uses `job_list`/`job_reap` only, but these are retained for upcoming job-control builtins.
 #[allow(
     dead_code,
     reason = "TODO(2026-09-12): retained for `jobs`/`fg`/`bg` builtins; not yet wired"
 )]
-pub unsafe fn job_count() -> usize {
+pub unsafe fn job_count() -> usize { unsafe {
     G_JOB_COUNT
-}
+}}
 
 #[allow(
     dead_code,
     reason = "TODO(2026-09-12): retained for `jobs`/`fg`/`bg` builtins; not yet wired"
 )]
-pub unsafe fn job_get_by_index(idx: usize) -> Option<(usize, i32, bool)> {
+pub unsafe fn job_get_by_index(idx: usize) -> Option<(usize, i32, bool)> { unsafe {
     if idx >= G_JOB_COUNT {
         return None;
     }
     Some((G_JOB_IDS[idx], G_JOB_PIDS[idx], G_JOB_RUNNING[idx]))
-}
+}}
 
-pub unsafe fn job_list() {
+pub unsafe fn job_list() { unsafe {
     for i in 0..G_JOB_COUNT {
         io::write_raw(b"[");
         io::write_u64(G_JOB_IDS[i] as u64);
@@ -93,9 +93,9 @@ pub unsafe fn job_list() {
         }
         io::newline();
     }
-}
+}}
 
-pub unsafe fn job_reap() {
+pub unsafe fn job_reap() { unsafe {
     loop {
         let mut status: i32 = 0;
         let pid = syscalls::waitpid(0xFFFF_FFFF, &mut status, syscalls::WNOHANG);
@@ -119,4 +119,4 @@ pub unsafe fn job_reap() {
             }
         }
     }
-}
+}}

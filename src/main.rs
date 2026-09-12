@@ -1,10 +1,6 @@
 #![no_std]
 #![no_main]
 #![allow(
-    unsafe_op_in_unsafe_fn,
-    reason = "TODO(2026-09-13): raw asm! syscall sites in syscalls/{io,comm}/*.rs are now explicitly unsafe{}-wrapped (real fix); remaining warnings are this bin's own ~260 call sites into those wrappers across commands/*, not yet individually wrapped"
-)]
-#![allow(
     non_snake_case,
     reason = "SYS_* constants (syscalls/consts.rs) mirror Linux/kernel ABI syscall-name casing"
 )]
@@ -27,7 +23,7 @@ mod repl;
 mod syscalls;
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! {
+pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! { unsafe {
     if argc > 1 && !argv.is_null() {
         let script_ptr = *argv.add(1);
         if !script_ptr.is_null() {
@@ -51,7 +47,7 @@ pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! {
     } else {
         repl::cooked::cooked_mode_repl();
     }
-}
+}}
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {

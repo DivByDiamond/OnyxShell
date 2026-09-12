@@ -6,7 +6,7 @@ pub fn is_inprocess_builtin(cmd: &[u8]) -> bool {
         b"cd" | b"exit" | b"pwd" | b"help" | b"whoami" | b"uname" | b"ver" | b"clear" | b"date"
     )
 }
-pub unsafe fn execute(line: &[u8], p: &Pipeline) {
+pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
     features::job_reap();
     if p.n_segments == 1 && p.stdout_file.1 == 0 && p.stdin_file.1 == 0 {
         let seg = &p.segments[0];
@@ -177,4 +177,4 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         io::write_i64(last_pid);
         io::newline();
     }
-}
+}}

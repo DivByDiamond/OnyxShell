@@ -32,9 +32,9 @@ pub unsafe fn close(fd: u64) -> i64 {
     ret
 }
 
-pub unsafe fn read_fd(fd: u64, buf: *mut u8, len: u64) -> i64 {
+pub unsafe fn read_fd(fd: u64, buf: *mut u8, len: u64) -> i64 { unsafe {
     self::tty::read(fd, buf, len)
-}
+}}
 
 pub unsafe fn write_fd(fd: u64, buf: *const u8, len: usize) -> i64 {
     let ret: i64;
