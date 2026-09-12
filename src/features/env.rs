@@ -13,12 +13,12 @@ static mut G_ENV_VALS: [[u8; ENV_VAL_MAX]; ENV_MAX] = [[0; ENV_VAL_MAX]; ENV_MAX
 static mut G_ENV_VAL_LEN: [u8; ENV_MAX] = [0; ENV_MAX];
 static mut G_ENV_COUNT: usize = 0;
 
-pub unsafe fn env_init() {
+pub unsafe fn env_init() { unsafe {
     env_set(b"HOME", b"/users/root");
     env_set(b"PATH", b"/bin");
-}
+}}
 
-pub unsafe fn env_get(key: &[u8]) -> Option<&'static [u8]> {
+pub unsafe fn env_get(key: &[u8]) -> Option<&'static [u8]> { unsafe {
     for i in 0..G_ENV_COUNT {
         let klen = G_ENV_KEY_LEN[i] as usize;
         if &G_ENV_KEYS[i][..klen] == key {
@@ -27,9 +27,9 @@ pub unsafe fn env_get(key: &[u8]) -> Option<&'static [u8]> {
         }
     }
     None
-}
+}}
 
-pub unsafe fn env_set(key: &[u8], val: &[u8]) {
+pub unsafe fn env_set(key: &[u8], val: &[u8]) { unsafe {
     if key.is_empty() {
         return;
     }
@@ -57,9 +57,9 @@ pub unsafe fn env_set(key: &[u8], val: &[u8]) {
     G_ENV_VALS[slot][vn] = 0;
     G_ENV_VAL_LEN[slot] = vn as u8;
     G_ENV_COUNT += 1;
-}
+}}
 
-pub unsafe fn env_unset(key: &[u8]) {
+pub unsafe fn env_unset(key: &[u8]) { unsafe {
     for i in 0..G_ENV_COUNT {
         let klen = G_ENV_KEY_LEN[i] as usize;
         if &G_ENV_KEYS[i][..klen] == key {
@@ -73,9 +73,9 @@ pub unsafe fn env_unset(key: &[u8]) {
             return;
         }
     }
-}
+}}
 
-pub unsafe fn env_list() {
+pub unsafe fn env_list() { unsafe {
     for i in 0..G_ENV_COUNT {
         let klen = G_ENV_KEY_LEN[i] as usize;
         let vlen = G_ENV_VAL_LEN[i] as usize;
@@ -84,12 +84,12 @@ pub unsafe fn env_list() {
         io::write_raw(&G_ENV_VALS[i][..vlen]);
         io::newline();
     }
-}
+}}
 
 pub unsafe fn build_envp(
     strings: &mut [[u8; ENV_KEY_MAX + ENV_VAL_MAX + 2]; ENV_MAX],
     ptrs: &mut [u64; ENV_MAX + 1],
-) -> usize {
+) -> usize { unsafe {
     let mut count = 0;
     for i in 0..G_ENV_COUNT {
         let klen = G_ENV_KEY_LEN[i] as usize;
@@ -111,11 +111,11 @@ pub unsafe fn build_envp(
     }
     ptrs[count] = 0;
     count
-}
+}}
 
 // ── Variable expansion ────────────────────────────────────────────────
 
-pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> {
+pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
@@ -156,11 +156,11 @@ pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> {
         i += 1;
     }
     out
-}
+}}
 
 // ── Tilde expansion ──────────────────────────────────────────────────
 
-pub unsafe fn expand_tilde(line: &[u8]) -> Vec<u8> {
+pub unsafe fn expand_tilde(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
@@ -186,4 +186,4 @@ pub unsafe fn expand_tilde(line: &[u8]) -> Vec<u8> {
         i += 1;
     }
     out
-}
+}}

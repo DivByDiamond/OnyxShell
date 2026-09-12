@@ -3,7 +3,7 @@ use crate::{eval, io, syscalls};
 
 static mut G_LINE: [u8; LINE_MAX] = [0u8; LINE_MAX];
 
-pub unsafe fn cooked_mode_repl() -> ! {
+pub unsafe fn cooked_mode_repl() -> ! { unsafe {
     loop {
         syscalls::write(1, PROMPT.as_ptr(), PROMPT.len());
         let n = io::read_line(&mut G_LINE);
@@ -21,4 +21,4 @@ pub unsafe fn cooked_mode_repl() -> ! {
         }
         eval::eval_line(&G_LINE[..end]);
     }
-}
+}}
