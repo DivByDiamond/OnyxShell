@@ -1,4 +1,11 @@
-#![allow(dead_code, non_upper_case_globals)]
+#![allow(
+    dead_code,
+    reason = "TODO(2026-09-12): shell syscall-number/const table; per-command unused consts are live across shell build variants and mirror kernel ABI"
+)]
+#![allow(
+    non_upper_case_globals,
+    reason = "TODO(2026-09-12): SYS_* constants mirror Linux/Kernel ABI naming, deliberately non-upper-case by convention"
+)]
 
 pub const SYS_write: u64 = 1;
 pub const SYS_read: u64 = 2;

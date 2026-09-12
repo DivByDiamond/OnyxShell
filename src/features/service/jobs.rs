@@ -59,12 +59,19 @@ pub unsafe fn job_set_running(job_id: usize, running: bool) -> bool {
     false
 }
 
-#[allow(dead_code)]
+// TODO(2026-09-12): `job_count` / `job_get_by_index` are the `jobs`/`fg`/`bg` introspection surface; current `jobs` builtin uses `job_list`/`job_reap` only, but these are retained for upcoming job-control builtins.
+#[allow(
+    dead_code,
+    reason = "TODO(2026-09-12): retained for `jobs`/`fg`/`bg` builtins; not yet wired"
+)]
 pub unsafe fn job_count() -> usize {
     G_JOB_COUNT
 }
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "TODO(2026-09-12): retained for `jobs`/`fg`/`bg` builtins; not yet wired"
+)]
 pub unsafe fn job_get_by_index(idx: usize) -> Option<(usize, i32, bool)> {
     if idx >= G_JOB_COUNT {
         return None;
