@@ -1,6 +1,6 @@
 #![allow(
     dead_code,
-    reason = "TODO(2026-09-12): shell syscall wrappers re-exported per-command; per-bin unused items live in other shell build contexts"
+    reason = "syscall wrapper library surface deliberately mirrors the full kernel ABI (same convention as onyx_init's/kernel's own syscall tables), not per-command dead weight; wire-up happens as shell features land"
 )]
 #![allow(
     non_upper_case_globals,
