@@ -168,7 +168,11 @@ fn normalize(path: &[u8], out: &mut [u8; PATH_MAX]) -> usize {
 }
 
 /// Print the resolved path for debugging (used by `cd` with no args to show cwd).
-#[allow(dead_code)]
+// TODO(2026-09-12): `print_cwd` is the `cd`-without-args helper; not yet wired to the repl but kept as the shell-side cwd display (used by `cd` builtin once landed).
+#[allow(
+    dead_code,
+    reason = "TODO(2026-09-12): wired to future `cd` builtin; retain as cwd display helper"
+)]
 pub fn print_cwd() {
     let mut buf = [0u8; PATH_MAX];
     let n = unsafe { syscalls::getcwd(buf.as_mut_ptr(), PATH_MAX as u64) };
