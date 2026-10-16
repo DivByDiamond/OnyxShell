@@ -12,7 +12,7 @@
 #   build/onyx-osh   - raw RISC-V ELF
 #   build/osh.onx    - OnyxExec v2 binary (place at /bin/osh in the disk image)
 
-set -e
+set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ONYXKERNEL_DIR="${ONYXKERNEL_DIR:-$(cd "$HERE/../OnyxKernel" && pwd)}"
