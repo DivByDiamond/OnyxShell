@@ -82,7 +82,10 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
             static mut G_ARGS2: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
             static mut G_ARGS_BUF2: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
             let cmd_args = seg_to_args(line, seg, &mut G_ARGS_BUF2, &mut G_ARGS2);
-            commands::dispatch(cmd_args);
+            match super::stdio::Redirect::new(stdin_fd, stdout_fd) {
+                Ok(_streams) => commands::dispatch(cmd_args),
+                Err(error) => io::write_error_errno("redirect", error),
+            }
             if stdout_fd > 2 {
                 syscalls::close(stdout_fd as u64);
             }
@@ -129,12 +132,10 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
         }
         if pid == 0 {
             if cur_read_fd != 0 {
-                syscalls::close(0);
-                let _ = syscalls::dup(cur_read_fd as u64);
+                if syscalls::bind_stdio(cur_read_fd as u64, 0) < 0 { syscalls::exit(1); }
             }
             if cur_write_fd != 1 {
-                syscalls::close(1);
-                let _ = syscalls::dup(cur_write_fd as u64);
+                if syscalls::bind_stdio(cur_write_fd as u64, 1) < 0 { syscalls::exit(1); }
             }
             static mut G_ARGS3: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
             static mut G_ARGS_BUF3: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
