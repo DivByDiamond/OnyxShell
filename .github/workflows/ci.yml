@@ -21,6 +21,9 @@ jobs:
           repository: DivByDiamond/OnyxKernel
           path: OnyxKernel
 
+      - name: Check syscall ABI snapshot
+        run: python3 OnyxKernel/scripts/generate-syscalls.py --check --shell-dir .
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@nightly
         with:
