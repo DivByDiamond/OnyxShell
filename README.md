@@ -101,8 +101,10 @@ Part of the [OnyxOS](https://github.com/DivByDiamond/OnyxOS) ecosystem.
 | `ver` | Print shell version and copyright | |
 
 **Root-only** commands require ring 1 (root space). The default first-boot
-auto-login is root, so all commands work out of the box. Regular users (ring 2)
-will get `Permission denied` from file-mutation commands.
+account is root with a hashed empty password; login still asks for a username.
+The shipped shell is RING1-tagged and cannot be executed from ring 2. A complete
+non-root login path (including passwd uid/gid installation) is unfinished.
+Ring-2 `unlink` and `mkdir` are denied; `create`/`rename` permit uid 0.
 
 ----
 
@@ -164,9 +166,9 @@ $ elf2onx --ring=1 --compress target/riscv64gc-unknown-none-elf/release/onyx-osh
 >
 > OnyxKernel's `exec` syscall sets the new process's ring based on the binary's
 > RING1 flag. Without `--ring=1`, `/bin/login` (ring 1) execs `/bin/osh` and
-> the shell is dropped to ring 2 (user space). In ring 2, file-mutation
-> syscalls (`unlink`, `mkdir`, `create`, `rename`) return `EPERM`, so
-> `rm`, `mkdir`, `cp`, `mv`, and `touch` would fail.
+> the shell is dropped to ring 2 (user space). Ring-2 `unlink` and `mkdir`
+> are denied by the ACL; `create` and `rename` have a uid-0 exception.
+> A ring-2 caller cannot use the RING1 tag to regain privileges.
 
 ----
 
