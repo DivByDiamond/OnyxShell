@@ -28,6 +28,8 @@ pub(crate) fn cmd_help(_args: &[&[u8]]) {
     io::write_line("  uname            show system information");
     io::write_line("  date             show current time");
     io::write_line("  ver              show shell version");
+    io::write_line("  reboot           restart the machine (root only)");
+    io::write_line("  poweroff         power off the machine (root only)");
     io::write_line("  clear            clear the screen");
     io::write_line("");
     io::write_line("Process:");
@@ -169,6 +171,29 @@ pub(crate) fn cmd_exit(_args: &[&[u8]]) {
     unsafe {
         syscalls::exit(0);
     }
+}
+
+/// `reboot` — SYS_reboot(1). Root only (kernel ACL ring <= 1), so a
+/// regular user gets EPERM and the shell stays alive to report it.
+pub(crate) fn cmd_reboot(_args: &[&[u8]]) {
+    power(1);
+}
+
+/// `poweroff` — SYS_reboot(0), same privilege rules as `reboot`.
+pub(crate) fn cmd_poweroff(_args: &[&[u8]]) {
+    power(0);
+}
+
+fn power(cmd: u64) {
+    if cmd == 1 {
+        io::write_line("rebooting...");
+    } else {
+        io::write_line("powering off...");
+    }
+    // SAFETY: syscall wrapper; on success the machine resets and this never
+    // returns. Any returned value is a (negative) errno.
+    let r = unsafe { syscalls::reboot(cmd) };
+    io::write_error_errno("reboot", r);
 }
 
 pub(crate) fn cmd_ver(_args: &[&[u8]]) {

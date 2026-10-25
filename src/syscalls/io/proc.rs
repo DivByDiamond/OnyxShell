@@ -118,6 +118,21 @@ pub unsafe fn execve(path: *const u8, argv: *const u64, envp: *const u64) -> i64
     ret
 }
 
+/// `SYS_reboot(cmd)`: 0 = power off, 1 = restart. Root only (the kernel ACL
+/// requires ring <= 1); never returns on success, so any return is an error.
+pub unsafe fn reboot(cmd: u64) -> i64 {
+    let ret: i64;
+    unsafe {
+        asm!(
+            "ecall",
+            in("a7") SYS_reboot,
+            in("a0") cmd as usize,
+            lateout("a0") ret,
+        );
+    }
+    ret
+}
+
 pub unsafe fn spawn(path: *const u8, argv: *const u64, ring_hint: u8) -> i64 {
     let ret: i64;
     unsafe {

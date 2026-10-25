@@ -87,6 +87,10 @@ pub fn dispatch(args: &[&[u8]]) {
         exec::cmd_run(rest);
     } else if cmd == b"source" || cmd == b"." {
         exec::cmd_source(rest);
+    } else if cmd == b"reboot" {
+        sys::cmd_reboot(rest);
+    } else if cmd == b"poweroff" || cmd == b"shutdown" {
+        sys::cmd_poweroff(rest);
     } else if cmd == b"date" {
         sys::cmd_date(rest);
     } else if cmd == b"ver" || cmd == b"version" {
