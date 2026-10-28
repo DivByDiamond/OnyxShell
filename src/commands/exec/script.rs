@@ -1,7 +1,6 @@
 use crate::features;
 use crate::io;
 use crate::path;
-use crate::pipeline;
 use crate::syscalls;
 
 use super::parse_job_id;
@@ -73,58 +72,7 @@ fn do_script_inner(input: &[u8]) {
 }
 
 fn execute_line(line: &[u8]) {
-    let expanded = unsafe { features::expand_tilde(line) };
-    let expanded = unsafe { features::expand_vars(expanded.as_slice()) };
-    let expanded_slice = expanded.as_slice();
-
-    let has_pipe_or_redirect = expanded_slice
-        .iter()
-        .any(|&b| b == b'|' || b == b'>' || b == b'<');
-    if has_pipe_or_redirect {
-        static mut G_EXPANDED: [u8; 256] = [0u8; 256];
-        let n = expanded_slice.len().min(255);
-        unsafe {
-            G_EXPANDED[..n].copy_from_slice(&expanded_slice[..n]);
-            G_EXPANDED[n] = 0;
-            let p = pipeline::parse(&G_EXPANDED[..n]);
-            pipeline::execute(&G_EXPANDED[..n], &p);
-        }
-        return;
-    }
-
-    static mut G_TOKEN_OFFSETS: [(usize, usize); 16] = [(0, 0); 16];
-    let ntok = io::tokenize(expanded_slice, unsafe { &mut G_TOKEN_OFFSETS });
-    if ntok == 0 {
-        return;
-    }
-
-    static mut G_EXPANDED_ARGS: [[u8; 128]; 32] = [[0u8; 128]; 32];
-    static mut G_ARGS: [&[u8]; 32] = [&[]; 32];
-    let mut n_args = 0usize;
-    for &(off, len) in unsafe { &G_TOKEN_OFFSETS[..ntok] } {
-        let tok = &expanded_slice[off..off + len];
-        let expansions = features::glob_expand(tok);
-        for j in 0..expansions.len() {
-            if n_args >= 32 {
-                break;
-            }
-            let exp = expansions[j];
-            let mut elen = 0;
-            while elen < 127 && exp[elen] != 0 {
-                elen += 1;
-            }
-            unsafe {
-                G_EXPANDED_ARGS[n_args] = exp;
-                G_ARGS[n_args] = &G_EXPANDED_ARGS[n_args][..elen];
-            }
-            n_args += 1;
-        }
-        if n_args >= 32 {
-            break;
-        }
-    }
-
-    crate::commands::dispatch(unsafe { &G_ARGS[..n_args] });
+    unsafe { crate::eval::eval_script_line(line); }
 }
 
 pub(crate) fn cmd_jobs(_args: &[&[u8]]) {

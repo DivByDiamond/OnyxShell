@@ -149,27 +149,24 @@ pub fn is_whitespace(b: u8) -> bool {
     b == b' ' || b == b'\t' || b == b'\r' || b == b'\n'
 }
 
-/// Split a byte slice into trimmed tokens (by whitespace).
-/// Returns a slice of (start, len) tuples into the original buffer.
+/// Record quote-aware word spans; decoding is deferred until argv creation.
 pub fn tokenize(line: &[u8], tokens: &mut [(usize, usize); 16]) -> usize {
-    let mut count = 0;
-    let mut i = 0;
-    let len = line.len();
-    while i < len && count < tokens.len() {
-        // Skip whitespace.
-        while i < len && is_whitespace(line[i]) {
-            i += 1;
+    let (mut count, mut cursor) = (0, 0);
+    loop {
+        match crate::syntax::next(line, &mut cursor) {
+            Ok(Some(token)) if count < tokens.len() => {
+                tokens[count] = (token.start, token.len);
+                count += 1;
+            }
+            Ok(None) => return count,
+            Ok(Some(_)) => {
+                write_error("too many arguments");
+                return 0;
+            }
+            Err(error) => {
+                write_error(error);
+                return 0;
+            }
         }
-        if i >= len {
-            break;
-        }
-        let start = i;
-        // Read token.
-        while i < len && !is_whitespace(line[i]) {
-            i += 1;
-        }
-        tokens[count] = (start, i - start);
-        count += 1;
     }
-    count
 }

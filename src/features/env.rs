@@ -115,11 +115,22 @@ pub unsafe fn build_envp(
 
 // ── Variable expansion ────────────────────────────────────────────────
 
+// Expanded values are data, not new shell quote/operator syntax.
+fn append_expansion(out: &mut Vec<u8>, value: &[u8], double_quoted: bool) {
+    for &byte in value {
+        if matches!(byte, b'"' | b'\\')
+            || (!double_quoted && matches!(byte, b'\'' | b'|' | b'<' | b'>' | b'&')) {
+            out.push(b'\\');
+        }
+        out.push(byte);
+    }
+}
+
 pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
-        if line[i] == b'$' && i + 1 < line.len() {
+        if line[i] == b'$' && i + 1 < line.len() && crate::syntax::expandable(line, i, true) {
             let next = line[i + 1];
             if next == b'{' {
                 let mut j = i + 2;
@@ -129,7 +140,7 @@ pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> { unsafe {
                 if j < line.len() {
                     let varname = &line[i + 2..j];
                     if let Some(val) = env_get(varname) {
-                        out.extend_from_slice(val);
+                        append_expansion(&mut out, val, !crate::syntax::expandable(line, i, false));
                     }
                     i = j + 1;
                     continue;
@@ -146,7 +157,7 @@ pub unsafe fn expand_vars(line: &[u8]) -> Vec<u8> { unsafe {
                 }
                 let varname = &line[i + 1..j];
                 if let Some(val) = env_get(varname) {
-                    out.extend_from_slice(val);
+                    append_expansion(&mut out, val, !crate::syntax::expandable(line, i, false));
                 }
                 i = j;
                 continue;
@@ -164,7 +175,7 @@ pub unsafe fn expand_tilde(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
-        if line[i] == b'~' && (i == 0 || line[i - 1] == b' ' || line[i - 1] == b'\t') {
+        if line[i] == b'~' && crate::syntax::expandable(line, i, false) && (i == 0 || line[i - 1] == b' ' || line[i - 1] == b'\t') {
             let mut j = i + 1;
             while j < line.len() && line[j] != b'/' && !io::is_whitespace(line[j]) {
                 j += 1;
