@@ -21,6 +21,7 @@ mod path;
 mod pipeline;
 mod repl;
 mod syscalls;
+mod syntax;
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! { unsafe {

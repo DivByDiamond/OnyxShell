@@ -1,5 +1,5 @@
 use super::{LINE_MAX, PROMPT};
-use crate::{eval, features, pipeline, syscalls};
+use crate::{eval, features, syscalls};
 
 unsafe fn clear_line(line: &[u8], _cursor: usize) { unsafe {
     syscalls::write(1, b"\r".as_ptr(), 1);
@@ -236,16 +236,6 @@ pub unsafe fn raw_mode_repl() -> ! { unsafe {
         }
         line[line_len] = 0;
         if line_len == 0 {
-            continue;
-        }
-        features::history_push(&line[..line_len]);
-        if eval::has_op(&line[..line_len]) {
-            static mut G_RAW: [u8; LINE_MAX] = [0u8; LINE_MAX];
-            let n = line_len.min(LINE_MAX - 1);
-            G_RAW[..n].copy_from_slice(&line[..n]);
-            G_RAW[n] = 0;
-            let p = pipeline::parse(&G_RAW[..n]);
-            pipeline::execute(&G_RAW[..n], &p);
             continue;
         }
         eval::eval_line(&line[..line_len]);

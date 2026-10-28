@@ -109,7 +109,7 @@ pub unsafe fn history_expand(line: &[u8]) -> Vec<u8> { unsafe {
     let mut out: Vec<u8> = Vec::new();
     let mut i = 0;
     while i < line.len() {
-        if line[i] == b'!' && i + 1 < line.len() {
+        if line[i] == b'!' && i + 1 < line.len() && crate::syntax::expandable(line, i, true) {
             let next = line[i + 1];
             if next == b'!' {
                 if let Some(prev) = history_last() {

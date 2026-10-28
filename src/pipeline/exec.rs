@@ -1,5 +1,5 @@
 use super::{MAX_ARGS_PER, MAX_SEGMENTS, Pipeline, seg_to_args};
-use crate::{commands, features, io, syscalls};
+use crate::{commands, features, io, syscalls, syntax};
 pub fn is_inprocess_builtin(cmd: &[u8]) -> bool {
     matches!(
         cmd,
@@ -7,6 +7,7 @@ pub fn is_inprocess_builtin(cmd: &[u8]) -> bool {
     )
 }
 pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
+    if p.n_segments == 0 { return; }
     features::job_reap();
     if p.n_segments == 1 && p.stdout_file.1 == 0 && p.stdin_file.1 == 0 {
         let seg = &p.segments[0];
@@ -40,8 +41,10 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
     let stdout_fd: i64 = if p.stdout_file.1 > 0 {
         let (off, len) = p.stdout_file;
         static mut G_OUT_PATH: [u8; 256] = [0u8; 256];
-        let n = len.min(255);
-        G_OUT_PATH[..n].copy_from_slice(&line[off..off + n]);
+        let n = match syntax::decode(&line[off..off + len], &mut G_OUT_PATH[..255]) {
+            Ok((length, _)) => length,
+            Err(error) => { io::write_error(error); return; }
+        };
         G_OUT_PATH[n] = 0;
         syscalls::open(
             G_OUT_PATH.as_ptr(),
@@ -54,8 +57,10 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
     let stdin_fd: i64 = if p.stdin_file.1 > 0 {
         let (off, len) = p.stdin_file;
         static mut G_IN_PATH: [u8; 256] = [0u8; 256];
-        let n = len.min(255);
-        G_IN_PATH[..n].copy_from_slice(&line[off..off + n]);
+        let n = match syntax::decode(&line[off..off + len], &mut G_IN_PATH[..255]) {
+            Ok((length, _)) => length,
+            Err(error) => { io::write_error(error); return; }
+        };
         G_IN_PATH[n] = 0;
         syscalls::open(G_IN_PATH.as_ptr(), syscalls::O_RDONLY as u64, 0)
     } else {
@@ -78,7 +83,12 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) { unsafe {
             return;
         }
         let (a_off, a_len) = seg.args[0];
-        if is_inprocess_builtin(&line[a_off..a_off + a_len]) {
+        let mut command = [0u8; 64];
+        let length = match syntax::decode(&line[a_off..a_off + a_len], &mut command) {
+            Ok((length, _)) => length,
+            Err(error) => { io::write_error(error); return; }
+        };
+        if is_inprocess_builtin(&command[..length]) {
             static mut G_ARGS2: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
             static mut G_ARGS_BUF2: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
             let cmd_args = seg_to_args(line, seg, &mut G_ARGS_BUF2, &mut G_ARGS2);
