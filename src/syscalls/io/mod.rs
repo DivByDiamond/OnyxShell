@@ -32,9 +32,9 @@ pub unsafe fn close(fd: u64) -> i64 {
     ret
 }
 
-pub unsafe fn read_fd(fd: u64, buf: *mut u8, len: u64) -> i64 { unsafe {
-    self::tty::read(fd, buf, len)
-}}
+pub unsafe fn read_fd(fd: u64, buf: *mut u8, len: u64) -> i64 {
+    unsafe { self::tty::read(fd, buf, len) }
+}
 
 pub unsafe fn write_fd(fd: u64, buf: *const u8, len: usize) -> i64 {
     let ret: i64;
@@ -235,18 +235,30 @@ pub unsafe fn dup(fd: u64) -> i64 {
 /// Onyx fcntl extension: bind a standard stream, or restore UART with MAX.
 pub unsafe fn bind_stdio(source: u64, target: u64) -> i64 {
     let ret: i64;
-    unsafe { asm!("ecall", in("a7") 44u64, in("a0") source,
-        in("a1") 0x4f01u64, in("a2") target, lateout("a0") ret); }
+    unsafe {
+        asm!("ecall", in("a7") 44u64, in("a0") source,
+        in("a1") 0x4f01u64, in("a2") target, lateout("a0") ret);
+    }
     ret
 }
 
 /// Save a standard stream, distinguishing default UART from allocation failure.
 pub unsafe fn save_stdio(target: u64) -> Result<u64, i64> {
     let state: i64;
-    unsafe { asm!("ecall", in("a7") 44u64, in("a0") target,
-        in("a1") 1u64, in("a2") 0u64, lateout("a0") state); }
-    if state == -9 { return Ok(u64::MAX); } // Unbound standard stream: UART.
-    if state < 0 { return Err(state); }
+    unsafe {
+        asm!("ecall", in("a7") 44u64, in("a0") target,
+        in("a1") 1u64, in("a2") 0u64, lateout("a0") state);
+    }
+    if state == -9 {
+        return Ok(u64::MAX);
+    } // Unbound standard stream: UART.
+    if state < 0 {
+        return Err(state);
+    }
     let saved = unsafe { dup(target) };
-    if saved < 0 { Err(saved) } else { Ok(saved as u64) }
+    if saved < 0 {
+        Err(saved)
+    } else {
+        Ok(saved as u64)
+    }
 }

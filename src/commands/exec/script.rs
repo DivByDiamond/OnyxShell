@@ -72,7 +72,9 @@ fn do_script_inner(input: &[u8]) {
 }
 
 fn execute_line(line: &[u8]) {
-    unsafe { crate::eval::eval_script_line(line); }
+    unsafe {
+        crate::eval::eval_script_line(line);
+    }
 }
 
 pub(crate) fn cmd_jobs(_args: &[&[u8]]) {

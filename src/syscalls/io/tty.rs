@@ -46,13 +46,13 @@ pub unsafe fn ioctl(fd: u64, request: u64, arg: u64) -> i64 {
     ret
 }
 
-pub unsafe fn enable_raw_mode() -> i64 { unsafe {
-    ioctl(0, TIOCSRAW, 0)
-}}
+pub unsafe fn enable_raw_mode() -> i64 {
+    unsafe { ioctl(0, TIOCSRAW, 0) }
+}
 
-pub unsafe fn disable_raw_mode() -> i64 { unsafe {
-    ioctl(0, TIOCRRAW, 0)
-}}
+pub unsafe fn disable_raw_mode() -> i64 {
+    unsafe { ioctl(0, TIOCRRAW, 0) }
+}
 
 pub unsafe fn uname(buf: *mut u8) -> i64 {
     let ret: i64;
