@@ -42,13 +42,9 @@ pub(crate) fn cmd_help(_args: &[&[u8]]) {
     io::write_line("");
     io::write_line("External commands (in /bin):");
     io::write_line("  obrowse <url>       TUI web browser (HTTP only)");
-    io::write_line("  ohttp <url> <out>   HTTP/1.1 GET to a file");
     io::write_line("  osnake              ANSI snake game");
     io::write_line("  otop                system monitor (reads /proc)");
     io::write_line("  vim [file]          Onyx-Vim editor");
-    io::write_line("  oed [file]          minimal line editor");
-    io::write_line("  osysmon             synthetic system monitor");
-    io::write_line("  dnstest <host>      DNS resolve hostname -> IPv4");
     io::write_line("");
     io::write_line("Note: creating/removing files and dirs (rm, mkdir, cp,");
     io::write_line("mv, touch) requires root (ring 1). Editing EXISTING");
