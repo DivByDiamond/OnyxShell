@@ -172,6 +172,39 @@ $ elf2onx --ring=1 --compress target/riscv64gc-unknown-none-elf/release/onyx-osh
 
 ----
 
+## Formatting and lint policy
+
+Every change must format the entire crate and run Clippy with warnings denied.
+Do not suppress dead code or other warnings with blanket `allow` attributes:
+remove unused helpers, or connect them to real execution paths. Keep the generated
+`src/syscalls/numbers.rs` ABI snapshot unchanged; `build.rs` derives the used,
+uppercase syscall constants from it for compilation.
+
+```sh
+cargo fmt --all
+cargo fmt --all -- --check
+cargo clippy --target x86_64-unknown-linux-gnu --test stdio --test quoting -- -D warnings
+cargo clippy --target riscv64gc-unknown-none-elf --all-targets -- -D warnings
+```
+
+The RISC-V `--all-targets` command currently fails because its target has no
+`std` or test harness, which the host tests require. Always attempt the full
+check and record this limitation; also verify the actual freestanding binary:
+
+```sh
+cargo clippy --target riscv64gc-unknown-none-elf --bin onyx-osh -- -D warnings
+cargo build --release --target riscv64gc-unknown-none-elf
+rustc --edition=2024 -D warnings --test tests/stdio.rs -o /tmp/onyx-shell-stdio-tests
+/tmp/onyx-shell-stdio-tests
+rustc --edition=2024 -D warnings --test tests/quoting/main.rs -o /tmp/onyx-shell-quoting-tests
+/tmp/onyx-shell-quoting-tests
+```
+
+Use the Rust host triple reported by `rustc -vV` on other workstations. The
+standalone host tests avoid building the RISC-V entry point on the host.
+
+----
+
 ## Testing in QEMU
 
 The `test_qemu.sh` script builds the entire OnyxOS stack (OnyxBoot +

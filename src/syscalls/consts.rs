@@ -1,28 +1,13 @@
-#![allow(
-    dead_code,
-    reason = "syscall-number table deliberately mirrors the full kernel ABI (same convention as onyx_init's/kernel's own syscall tables), not per-command dead weight; wire-up happens as shell features land"
-)]
-#![allow(
-    non_upper_case_globals,
-    reason = "TODO(2026-09-12): SYS_* constants mirror Linux/Kernel ABI naming, deliberately non-upper-case by convention"
-)]
-
-include!("numbers.rs");
+// Compile only the numbers used by wrappers; retain the complete ABI snapshot.
+include!(concat!(env!("OUT_DIR"), "/syscall_numbers.rs"));
 
 pub const TIOCSRAW: u64 = 0x5421;
 pub const TIOCRRAW: u64 = 0x5422;
-pub const TIOCGRAW: u64 = 0x5423;
 
 pub const O_RDONLY: u32 = 0;
 pub const O_WRONLY: u32 = 1;
-pub const O_RDWR: u32 = 2;
 pub const O_CREAT: u32 = 1 << 6;
 pub const O_TRUNC: u32 = 1 << 9;
-pub const O_APPEND: u32 = 1 << 10;
-
-pub const SEEK_SET: u32 = 0;
-pub const SEEK_CUR: u32 = 1;
-pub const SEEK_END: u32 = 2;
 
 pub const WNOHANG: u32 = 1;
 pub const SIGCONT: i32 = 18;

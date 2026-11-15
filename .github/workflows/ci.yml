@@ -28,6 +28,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           targets: riscv64gc-unknown-none-elf
+          components: clippy, rustfmt
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
@@ -35,6 +36,13 @@ jobs:
           workspaces: |
             .
             OnyxKernel
+
+      - name: Full formatting and strict clippy
+        run: |
+          python3 OnyxKernel/scripts/quality/no-dead-allow.py .
+          cargo fmt --all -- --check
+          cargo clippy --target x86_64-unknown-linux-gnu --test stdio --test quoting -- -D warnings
+          cargo clippy --target riscv64gc-unknown-none-elf --bin onyx-osh -- -D warnings
 
       - name: Build
         env:

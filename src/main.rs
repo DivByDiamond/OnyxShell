@@ -1,17 +1,5 @@
 #![no_std]
 #![no_main]
-#![allow(
-    non_snake_case,
-    reason = "SYS_* constants (syscalls/consts.rs) mirror Linux/kernel ABI syscall-name casing"
-)]
-#![allow(
-    clippy::missing_safety_doc,
-    reason = "TODO(2026-09-13): crate-wide backstop for older unsafe fns predating the per-fn `# Safety` convention; burn down opportunistically"
-)]
-#![allow(
-    static_mut_refs,
-    reason = "bare-static shell state (cwd, job table) is pervasive in this no_std binary; per-site migration to safe wrappers is tracked separately, not a stub"
-)]
 
 mod commands;
 mod eval;
@@ -23,8 +11,14 @@ mod repl;
 mod syntax;
 mod syscalls;
 
+/// Enter the shell with the kernel-provided process arguments.
+///
+/// # Safety
+/// `argv` must contain `argc` readable pointers to NUL-terminated strings.
+/// The kernel must enter once, on the process's sole thread, with a valid stack.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! {
+    // SAFETY: The kernel entry contract supplies valid process arguments.
     unsafe {
         if argc > 1 && !argv.is_null() {
             let script_ptr = *argv.add(1);
@@ -54,6 +48,7 @@ pub unsafe extern "C" fn _start(argc: usize, argv: *const *const u8) -> ! {
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
+    // SAFETY: Panic cleanup runs on the shell thread and exits the process.
     unsafe {
         let _ = syscalls::disable_raw_mode();
         io::write_str("osh: internal panic — halting\n");

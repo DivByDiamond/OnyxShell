@@ -2,8 +2,13 @@
 mod syntax;
 mod io {
     pub fn write_error(_message: &str) {}
-    pub fn write_raw(_bytes: &[u8]) {}
-    pub fn newline() {}
+    pub static OUTPUT: std::sync::Mutex<Vec<u8>> = std::sync::Mutex::new(Vec::new());
+    pub fn write_raw(bytes: &[u8]) {
+        OUTPUT.lock().unwrap().extend_from_slice(bytes);
+    }
+    pub fn newline() {
+        write_raw(b"\n");
+    }
     pub fn is_whitespace(byte: u8) -> bool {
         byte.is_ascii_whitespace()
     }
@@ -72,6 +77,23 @@ fn ordinary_pipeline_and_invalid_operator_sequences() {
 #[test]
 fn real_variable_expansion_preserves_single_quoted_lua_and_quoted_values() {
     unsafe {
+        env::env_init();
+        assert_eq!(env::env_get(b"PATH"), Some(b"/bin".as_slice()));
+        env::env_set(b"REMOVE", b"temporary");
+        env::env_unset(b"REMOVE");
+        assert_eq!(env::env_get(b"REMOVE"), None);
+        let mut strings = [[0; env::ENV_KEY_MAX + env::ENV_VAL_MAX + 2]; env::ENV_MAX];
+        let mut pointers = [0; env::ENV_MAX + 1];
+        let count = env::build_envp(&mut strings, &mut pointers);
+        assert_eq!(count, 2);
+        assert_eq!(&strings[0][..17], b"HOME=/users/root\0");
+        assert_eq!(pointers[0], strings[0].as_ptr() as u64);
+        assert_eq!(pointers[count], 0);
+        env::env_list();
+        assert_eq!(
+            io::OUTPUT.lock().unwrap().as_slice(),
+            b"HOME=/users/root\nPATH=/bin\n"
+        );
         env::env_set(b"HOME", b"/users/test");
         env::env_set(b"QTEST", b"a\"b|c");
         let expanded = env::expand_vars(br#"lua -e 'print("$QTEST", "~", "!42")' "$QTEST""#);

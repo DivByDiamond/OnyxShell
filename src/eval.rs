@@ -61,8 +61,8 @@ unsafe fn evaluate(raw: &[u8], interactive: bool) {
             return;
         }
 
-        static mut G_TOKEN_OFFSETS: [(usize, usize); 16] = [(0, 0); 16];
-        let ntok = io::tokenize(s, &mut G_TOKEN_OFFSETS);
+        let mut token_offsets: [(usize, usize); 16] = [(0, 0); 16];
+        let ntok = io::tokenize(s, &mut token_offsets);
         if ntok == 0 {
             return;
         }
@@ -70,7 +70,7 @@ unsafe fn evaluate(raw: &[u8], interactive: bool) {
         static mut G_EXPANDED_ARGS: [[u8; 128]; 32] = [[0u8; 128]; 32];
         static mut G_ARGS: [&[u8]; 32] = [&[]; 32];
         let mut n_args = 0usize;
-        for &(off, len) in &G_TOKEN_OFFSETS[..ntok] {
+        for &(off, len) in &token_offsets[..ntok] {
             let mut decoded = [0u8; 128];
             let (length, protected) = match syntax::decode(&s[off..off + len], &mut decoded[..127])
             {

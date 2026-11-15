@@ -17,9 +17,9 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
             if seg.n_args == 0 {
                 return;
             }
-            static mut G_ARGS: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
-            static mut G_ARGS_BUF: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
-            let cmd_args = seg_to_args(line, seg, &mut G_ARGS_BUF, &mut G_ARGS);
+            let mut g_args: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
+            let mut g_args_buf: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
+            let cmd_args = seg_to_args(line, seg, &mut g_args_buf, &mut g_args);
             if p.background {
                 let pid = syscalls::fork();
                 if pid < 0 {
@@ -43,17 +43,17 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         }
         let stdout_fd: i64 = if p.stdout_file.1 > 0 {
             let (off, len) = p.stdout_file;
-            static mut G_OUT_PATH: [u8; 256] = [0u8; 256];
-            let n = match syntax::decode(&line[off..off + len], &mut G_OUT_PATH[..255]) {
+            let mut g_out_path: [u8; 256] = [0u8; 256];
+            let n = match syntax::decode(&line[off..off + len], &mut g_out_path[..255]) {
                 Ok((length, _)) => length,
                 Err(error) => {
                     io::write_error(error);
                     return;
                 }
             };
-            G_OUT_PATH[n] = 0;
+            g_out_path[n] = 0;
             syscalls::open(
-                G_OUT_PATH.as_ptr(),
+                g_out_path.as_ptr(),
                 (syscalls::O_WRONLY | syscalls::O_CREAT | syscalls::O_TRUNC) as u64,
                 0,
             )
@@ -62,16 +62,16 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
         };
         let stdin_fd: i64 = if p.stdin_file.1 > 0 {
             let (off, len) = p.stdin_file;
-            static mut G_IN_PATH: [u8; 256] = [0u8; 256];
-            let n = match syntax::decode(&line[off..off + len], &mut G_IN_PATH[..255]) {
+            let mut g_in_path: [u8; 256] = [0u8; 256];
+            let n = match syntax::decode(&line[off..off + len], &mut g_in_path[..255]) {
                 Ok((length, _)) => length,
                 Err(error) => {
                     io::write_error(error);
                     return;
                 }
             };
-            G_IN_PATH[n] = 0;
-            syscalls::open(G_IN_PATH.as_ptr(), syscalls::O_RDONLY as u64, 0)
+            g_in_path[n] = 0;
+            syscalls::open(g_in_path.as_ptr(), syscalls::O_RDONLY as u64, 0)
         } else {
             0
         };
@@ -101,9 +101,9 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
                 }
             };
             if is_inprocess_builtin(&command[..length]) {
-                static mut G_ARGS2: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
-                static mut G_ARGS_BUF2: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
-                let cmd_args = seg_to_args(line, seg, &mut G_ARGS_BUF2, &mut G_ARGS2);
+                let mut g_args2: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
+                let mut g_args_buf2: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
+                let cmd_args = seg_to_args(line, seg, &mut g_args_buf2, &mut g_args2);
                 match super::stdio::Redirect::new(stdin_fd, stdout_fd) {
                     Ok(_streams) => commands::dispatch(cmd_args),
                     Err(error) => io::write_error_errno("redirect", error),
@@ -159,9 +159,9 @@ pub unsafe fn execute(line: &[u8], p: &Pipeline) {
                 if cur_write_fd != 1 && syscalls::bind_stdio(cur_write_fd as u64, 1) < 0 {
                     syscalls::exit(1);
                 }
-                static mut G_ARGS3: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
-                static mut G_ARGS_BUF3: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
-                let cmd_args = seg_to_args(line, seg, &mut G_ARGS_BUF3, &mut G_ARGS3);
+                let mut g_args3: [&[u8]; MAX_ARGS_PER] = [&[]; MAX_ARGS_PER];
+                let mut g_args_buf3: [[u8; 64]; MAX_ARGS_PER] = [[0u8; 64]; MAX_ARGS_PER];
+                let cmd_args = seg_to_args(line, seg, &mut g_args_buf3, &mut g_args3);
                 commands::dispatch(cmd_args);
                 syscalls::exit(0);
             }

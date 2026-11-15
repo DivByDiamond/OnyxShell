@@ -1,4 +1,4 @@
-pub use super::super::consts::*;
+use super::super::consts::*;
 use core::arch::asm;
 
 pub unsafe fn write(fd: u64, buf: *const u8, len: usize) -> i64 {
@@ -6,7 +6,7 @@ pub unsafe fn write(fd: u64, buf: *const u8, len: usize) -> i64 {
     unsafe {
         asm!(
             "ecall",
-            in("a7") SYS_write,
+            in("a7") SYS_WRITE,
             in("a0") fd,
             in("a1") buf as usize,
             in("a2") len,
@@ -21,7 +21,7 @@ pub unsafe fn read(fd: u64, buf: *mut u8, len: u64) -> i64 {
     unsafe {
         asm!(
             "ecall",
-            in("a7") SYS_read,
+            in("a7") SYS_READ,
             in("a0") fd,
             in("a1") buf as usize,
             in("a2") len as usize,
@@ -36,7 +36,7 @@ pub unsafe fn ioctl(fd: u64, request: u64, arg: u64) -> i64 {
     unsafe {
         asm!(
             "ecall",
-            in("a7") SYS_ioctl,
+            in("a7") SYS_IOCTL,
             in("a0") fd,
             in("a1") request,
             in("a2") arg,
@@ -59,7 +59,7 @@ pub unsafe fn uname(buf: *mut u8) -> i64 {
     unsafe {
         asm!(
             "ecall",
-            in("a7") SYS_uname,
+            in("a7") SYS_UNAME,
             in("a0") buf as usize,
             lateout("a0") ret,
         );
@@ -72,22 +72,9 @@ pub unsafe fn clock_gettime(clk_id: u64, ts: *mut u64) -> i64 {
     unsafe {
         asm!(
             "ecall",
-            in("a7") SYS_clock_gettime,
+            in("a7") SYS_CLOCK_GETTIME,
             in("a0") clk_id,
             in("a1") ts as usize,
-            lateout("a0") ret,
-        );
-    }
-    ret
-}
-
-pub unsafe fn isatty(fd: u64) -> i64 {
-    let ret: i64;
-    unsafe {
-        asm!(
-            "ecall",
-            in("a7") SYS_isatty,
-            in("a0") fd,
             lateout("a0") ret,
         );
     }

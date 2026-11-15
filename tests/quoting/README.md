@@ -3,14 +3,13 @@
 From the OnyxShell root:
 
 ```sh
-rustc --edition=2024 -A static_mut_refs --test tests/quoting/main.rs \
+rustc --edition=2024 -D warnings --test tests/quoting/main.rs \
   -o /tmp/onyx-shell-quoting-tests
 /tmp/onyx-shell-quoting-tests
 bash build.sh
 ```
 
-The lint setting mirrors the shell crate's existing policy for its global
-environment storage. Tests import the production scanner, decoder, pipeline
+Tests import the production scanner, decoder, pipeline
 parser and variable-expansion module; host I/O is replaced with test-only
 helpers. They do not exercise kernel process execution or redirection I/O.
 
