@@ -5,3 +5,4 @@
 *.elf
 
 .claude/
+/build/osh.onx
